@@ -29,15 +29,14 @@ static DWORD __map_mmap_prot_page(const int prot) {
 static DWORD __map_mmap_prot_file(const int prot) {
   DWORD desiredAccess = 0;
 
-  if(prot == PROT_NONE)
-    return desiredAccess;
-
-  if(prot & PROT_READ)
-    desiredAccess |= FILE_MAP_READ;
-  if(prot & PROT_WRITE)
-    desiredAccess |= FILE_MAP_WRITE;
-  if(prot & PROT_EXEC)
-    desiredAccess |= FILE_MAP_EXECUTE;
+  if(prot != PROT_NONE) {
+    if(prot & PROT_READ)
+      desiredAccess |= FILE_MAP_READ;
+    if(prot & PROT_WRITE)
+      desiredAccess |= FILE_MAP_WRITE;
+    if(prot & PROT_EXEC)
+      desiredAccess |= FILE_MAP_EXECUTE;
+  }
 
   return desiredAccess;
 }
@@ -72,41 +71,30 @@ void* mmap(void *addr, const size_t len, const int prot, const int flags, const 
 
   errno = 0;
 
-  if(len == 0
-     /* Unsupported flag combinations */
-     || (flags & MAP_FIXED) != 0
-     /* Usupported protection combinations */
-     || prot == PROT_EXEC)
-  {
+  /* Catch unsupported combinations, unimplemented flags */
+  if(!len || (flags & MAP_FIXED) || prot == PROT_EXEC) {
     errno = EINVAL;
     return MAP_FAILED;
   }
 
-  h = ((flags & MAP_ANONYMOUS) == 0) ?
-        (HANDLE)_get_osfhandle(fildes) : INVALID_HANDLE_VALUE;
-
-  if((flags & MAP_ANONYMOUS) == 0 && h == INVALID_HANDLE_VALUE) {
+  if(flags & MAP_ANONYMOUS) {
+    h = INVALID_HANDLE_VALUE;
+  } else if(INVALID_HANDLE_VALUE == (h = (HANDLE)_get_osfhandle(fildes))) {
     errno = EBADF;
     return MAP_FAILED;
   }
 
   fm = CreateFileMapping(h, NULL, protect, dwMaxSizeHigh, dwMaxSizeLow, NULL);
-
-  if(!fm) {
-    __map_mman_error();
-    return MAP_FAILED;
-  }
+  if(!fm) goto error;
 
   map = MapViewOfFile(fm, desiredAccess, dwFileOffsetHigh, dwFileOffsetLow, len);
-
   CloseHandle(fm);
-
-  if(!map) {
-    __map_mman_error();
-    return MAP_FAILED;
-  }
-
+  if(!map) goto error;
   return map;
+
+ error:
+  __map_mman_error();
+  return MAP_FAILED;
 }
 
 int munmap(void *addr, const size_t len) {
@@ -114,6 +102,5 @@ int munmap(void *addr, const size_t len) {
     return 0;
 
   __map_mman_error();
-
   return -1;
 }

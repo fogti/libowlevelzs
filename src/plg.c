@@ -100,6 +100,7 @@ static bool zsplg_upd_errstr(zsplg_handle_t *const handle) {
   return tmp;
 }
 
+zs_attrib(hot)
 zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
   /* handle error conditions */
   if(zs_unlikely(!fndat))

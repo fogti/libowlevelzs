@@ -36,19 +36,26 @@ namespace llzs {
 }
 
 extern "C" {
-  bool llzs_stinreplace(char ** restrict stval, const char * restrict search, const char * restrict replace) {
-    string tmp = *stval;
-    llzs::string_inreplace(tmp, search, replace);
-    *stval = reinterpret_cast<char*>(realloc(*stval, tmp.size() + 1));
-    const bool ret = *stval;
-    if(zs_likely(ret)) llzs_strxcpy(*stval, tmp.c_str(), tmp.size());
-    return ret;
+  bool llzs_stinreplace(char ** restrict stval, const char * restrict search, const char * restrict replace) noexcept {
+    try {
+      string tmp = *stval;
+      llzs::string_inreplace(tmp, search, replace);
+      char * xret = *stval = reinterpret_cast<char*>(realloc(*stval, tmp.size() + 1));
+      if(zs_likely(xret)) llzs_strxcpy(xret, tmp.c_str(), tmp.size());
+      return xret;
+    } catch(...) {
+      return false;
+    }
   }
 
-  char * llzs_streplace(const char * restrict stval, const char * restrict search, const char * restrict replace, size_t * restrict n) {
-    string tmp = stval;
-    llzs::string_inreplace(tmp, search, replace);
-    *n = tmp.size();
-    return llzs_strxdup(tmp.c_str(), tmp.size());
+  char * llzs_streplace(const char * restrict stval, const char * restrict search, const char * restrict replace, size_t * restrict n) noexcept {
+    try {
+      string tmp = stval;
+      llzs::string_inreplace(tmp, search, replace);
+      *n = tmp.size();
+      return llzs_strxdup(tmp.c_str(), tmp.size());
+    } catch(...) {
+      return nullptr;
+    }
   }
 }

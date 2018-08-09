@@ -180,9 +180,6 @@ zsplg_gdsa_t spawn_h_exec(spawn_handle_t *sph, const size_t argc, const char *ar
   RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-zsplg_gdsa_t _Z7spawn_hPvjPPKc(spawn_handle_t *sph, const size_t argc, const char *argv[])
-  zs_attrib(alias("spawn_h_exec"));
-
 zsplg_gdsa_t spawn_h_caout(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
   RET_GDSA(llzs_strxdup(sph->caout, sph->cosiz), _Z10do_destroyPv);
 }
