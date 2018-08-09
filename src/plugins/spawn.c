@@ -34,7 +34,7 @@ static bool _Z10do_destroyP14spawn_handle_t(spawn_handle_t *const handle) {
 }
 
 static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
-  if(argc != 1) return zsplg_gdsa_null;
+  if(argc != 1) RET_GDSA_NULL;
   spawn_handle_t * ret = calloc(1, sizeof(spawn_handle_t));
   ret->cln = strlen(argv[0]);
   ret->cmd = llzs_strxdup(argv[0], ret->cln);
@@ -49,7 +49,7 @@ static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
 
 zsplugin_t * init_spawn() {
   static zsplugin_t plg = {
-    .data        = INLINE_GDSA(0, 0),
+    .data        = ZS_GDSA(0, 0),
     .fn_h_create = &h_create,
   };
   return &plg;
@@ -165,7 +165,7 @@ zsplg_gdsa_t spawn_h_ap(spawn_handle_t *sph, const size_t argc, const char *argv
 
   for(; argi < argc; ++argi)
     if(!zs_spap(sph, argv[argi], do_quote))
-      return zsplg_gdsa_null;
+      RET_GDSA(0, 0);
   RET_GDSA("-", 0);
 }
 
