@@ -15,7 +15,7 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
   /* load plugin with dlopen */
   zsplg_handle_t ret = {
     .st         = ZSP_OK,
-    .modname    = do_strcpy ? strdup(modname) : modname,
+    .modname    = 0,
     .mnlen      = strlen(modname),
     .dlh        = file ? dlopen(file, RTLD_LAZY | RTLD_LOCAL) : RTLD_DEFAULT,
     .have_alloc = do_strcpy,
@@ -25,24 +25,27 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
     return ret;
   }
 
-  /* init_fn_name = "init_" modname + "\0" */
+  /* init_fn_name = "init_" + modname + "\0" */
   char init_fn_name[ret.mnlen + 6];
   memset(init_fn_name, 0, sizeof(init_fn_name));
-  llzs_strxcpy(init_fn_name, "init_", 5);
-  llzs_strxcpy(init_fn_name + 5, ret.modname, ret.mnlen);
+  {
+    char *tmp = init_fn_name;
+    llzs_strixcpy(&tmp, "init_", 5);
+    llzs_strixcpy(&tmp, modname, ret.mnlen);
+  }
 
   /* initialize plugin */
   zsplugin_t* (*init_fn)() = dlsym(ret.dlh, init_fn_name);
-  if(zs_unlikely(!init_fn)) {
-    /* ERROR HERE*/
+  if(zs_likely(init_fn)) {
+    ret.plugin  = *((*init_fn)());
+    ret.modname = do_strcpy ? llzs_strxdup(modname, ret.mnlen) : modname;
+  } else {
     zsplg_setstdl(&ret, ZSPE_DLOPN);
     /* cleanup dlh */
     if(file) {
       dlclose(ret.dlh);
       ret.dlh = 0;
     }
-  } else {
-    ret.plugin = *((*init_fn)());
   }
   return ret;
 }
@@ -60,27 +63,32 @@ bool zsplg_destroy(zsplg_gdsa_t *const gdsa) {
 }
 
 bool zsplg_close(zsplg_handle_t *const handle) {
-  if(zs_unlikely(!handle)) return false;
+  if(zs_unlikely(!handle))
+    return false;
 
   zsplg_status st = handle->st;
   zsplugin_t *const plgptr = &handle->plugin;
 
-  if(st != ZSPE_DLOPN) {
-    if(zs_unlikely(!zsplg_destroy(&plgptr->data)))
-      st = ZSPE_PLG;
-    plgptr->data = ZS_GDSA(0, 0);
+  if(st == ZSPE_DLOPN)
+    goto cont_nodlopen;
 
-    /* unload plugin */
-    if(handle->dlh) {
-      const int tmp = dlclose(handle->dlh);
-      if(zs_unlikely(tmp)) {
-        if(st == ZSP_OK) st = ZSPE_DLCLOS;
-        handle->error_str = dlerror();
-      } else {
-        handle->dlh = 0;
-      }
-    }
+  if(zs_unlikely(!zsplg_destroy(&plgptr->data)))
+    st = ZSPE_PLG;
+
+  plgptr->data = ZS_GDSA(0, 0);
+
+  /* unload plugin */
+  if(!handle->dlh)
+    goto cont_nodlopen;
+
+  if(zs_likely(!dlclose(handle->dlh))) {
+    handle->dlh = 0;
+  } else {
+    if(st == ZSP_OK) st = ZSPE_DLCLOS;
+    handle->error_str = dlerror();
   }
+
+ cont_nodlopen:
   if(handle->have_alloc) {
     free((void*)handle->modname);
     handle->modname = 0;
@@ -94,10 +102,11 @@ zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *const base, size_t argc, char 
   return plgptr->fn_h_create(plgptr->data.data, argc, argv);
 }
 
-static bool zsplg_upd_errstr(zsplg_handle_t *const handle) {
+static void zsplg_upd_errstr(zsplg_handle_t *const handle, const zsplg_status st) {
   const char *const tmp = dlerror();
-  if(zs_unlikely(tmp)) handle->error_str = tmp;
-  return tmp;
+  if(zs_likely(!tmp)) return;
+  handle->error_str = tmp;
+  if(st != ZSP_OK) handle->st = st;
 }
 
 zs_attrib(hot)
@@ -127,13 +136,12 @@ zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
     }
 
     /* get function addr */
-    zsplg_upd_errstr(handle);
+    zsplg_upd_errstr(handle, ZSP_OK);
     xfn_ptr = dlsym(handle->dlh, xfn_name);
   }
 
   if(zs_unlikely(!xfn_ptr)) {
-    if(zsplg_upd_errstr(handle))
-      handle->st = ZSPE_DLSYM;
+    zsplg_upd_errstr(handle, ZSPE_DLSYM);
     RET_GDSA_NULL;
   }
 
