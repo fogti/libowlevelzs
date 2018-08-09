@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
+#include <llzs_config.h>
 
 #define restrict __restrict__
 
@@ -40,7 +41,7 @@ extern "C" {
     llzs::string_inreplace(tmp, search, replace);
     *stval = reinterpret_cast<char*>(realloc(*stval, tmp.size() + 1));
     const bool ret = *stval;
-    if(ret) llzs_strxcpy(*stval, tmp.c_str(), tmp.size());
+    if(zs_likely(ret)) llzs_strxcpy(*stval, tmp.c_str(), tmp.size());
     return ret;
   }
 

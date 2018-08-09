@@ -1,3 +1,4 @@
+#define _ZS_PLUGIN__
 #include "plg.h"
 #include "string/xcpy.h"
 #define _GNU_SOURCE
@@ -5,10 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* TODO: every plugin function should return a struct of type {
-  void *ptr;
-  void (*destruct)(void * ptr);
-} */
+const zsplg_gdsa_t zsplg_gdsa_null = {
+  .data = 0,
+  .destroy = 0
+};
 
 static void zsplg_setstdl(zsplg_handle_t *const handle, const zsplg_status st) {
   handle->st        = st;
@@ -31,7 +32,7 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
 
   /* init_fn_name = "init_" modname + "\0" */
   char init_fn_name[ret.mnlen + 6];
-  memset(init_fn_name, 0, ret.mnlen + 6);
+  memset(init_fn_name, 0, sizeof(init_fn_name));
   llzs_strxcpy(init_fn_name, "init_", 5);
   llzs_strxcpy(init_fn_name + 5, ret.modname, ret.mnlen);
 
@@ -51,39 +52,29 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
   return ret;
 }
 
-bool zsplg_destroy(zsplg_handle_t *const handle, void *data, const bool is_ret) {
+zs_attrib(pure)
+bool zsplg_destroy(zsplg_gdsa_t *const gdsa) {
+  if(zs_unlikely(!gdsa))
+    return false;
+  if(gdsa->destroy) {
+    if(zs_unlikely(!gdsa->destroy(gdsa->data)))
+      return false;
+    gdsa->destroy = 0;
+    gdsa->data = 0;
+  }
+  return true;
+}
+
+bool zsplg_close(zsplg_handle_t *const handle) {
   if(zs_unlikely(!handle)) return false;
 
   zsplg_status st = handle->st;
   zsplugin_t *const plgptr = &handle->plugin;
 
-  if(st == ZSPE_DLOPN) {
-    if(zs_unlikely(data)) {
-      /* WTF -- where does data come from?? */
-      return false;
-    }
-    /* plugin isn't fully initialized --> only free leftover mem */
-  } else {
-    void *x_data;
-    zsplg_destr_t drt;
-
-    if(data) {
-      /* destroy handle / retval */
-      x_data = data;
-      drt = is_ret ? ZSPD_RET : ZSPD_HANDLE;
-    } else {
-      /* deinitialize plugin */
-      x_data = plgptr->data;
-      drt = ZSPD_PLG;
-    }
-
-    const bool ret = plgptr->fn_destroy(x_data, drt);
-    if(!ret) st = ZSPE_PLG;
-    if(data) {
-      handle->st = st;
-      return ret;
-    }
-    plgptr->data = 0;
+  if(st != ZSPE_DLOPN) {
+    if(zs_unlikely(!zsplg_destroy(&plgptr->data)))
+      st = ZSPE_PLG;
+    plgptr->data = zsplg_make_gdsa(0, 0);
 
     /* unload plugin */
     if(handle->dlh) {
@@ -96,7 +87,6 @@ bool zsplg_destroy(zsplg_handle_t *const handle, void *data, const bool is_ret) 
       }
     }
   }
-
   if(handle->have_alloc) {
     free((void*)handle->modname);
     handle->modname = 0;
@@ -106,9 +96,9 @@ bool zsplg_destroy(zsplg_handle_t *const handle, void *data, const bool is_ret) 
 }
 
 zs_attrib(pure)
-void * zsplg_h_create(const zsplg_handle_t *const base, size_t argc, char *argv[]) {
+zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *const base, size_t argc, char *argv[]) {
   const zsplugin_t *const plgptr = &base->plugin;
-  return plgptr->fn_h_create(plgptr->data, argc, argv);
+  return plgptr->fn_h_create(plgptr->data.data, argc, argv);
 }
 
 static bool zsplg_upd_errstr(zsplg_handle_t *const handle) {
@@ -117,39 +107,42 @@ static bool zsplg_upd_errstr(zsplg_handle_t *const handle) {
   return tmp;
 }
 
-void * zsplg_h_call(const zsplg_fncall_t *const fndat, void *const h_id) {
+zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
   /* handle error conditions */
   if(zs_unlikely(!fndat))
-    return 0;
+    return zsplg_gdsa_null;
 
   zsplg_handle_t *const handle = fndat->plgh;
   const char     *const fn     = fndat->fn;
 
   if(zs_unlikely(!handle || !fn || handle->st == ZSPE_DLOPN))
-    return 0;
+    return zsplg_gdsa_null;
 
-  /* construct function name */
-  const size_t fnlen = strlen(fn);
-  const size_t xfnlen = handle->mnlen + fnlen + 3 + (h_id ? 1 : 0);
-  char xfn_name[xfnlen];
-  memset(xfn_name, 0, xfnlen);
+  zsplg_gdsa_t (*xfn_ptr)(void *, size_t, char *const*);
+
   {
-    char *xnp = llzs_strxcpy(xfn_name, handle->modname, handle->mnlen);
-             *(xnp++) = '_';
-    if(h_id) *(xnp++) = 'h';
-    llzs_strxcpy(stpcpy(xnp, "_"), fn, fnlen);
-  }
+    /* construct function name */
+    const size_t fnlen = strlen(fn);
+    char xfn_name[handle->mnlen + fnlen + 3 + (h_id ? 1 : 0)];
+    memset(xfn_name, 0, sizeof(xfn_name));
+    {
+      char *xnp = llzs_strxcpy(xfn_name, handle->modname, handle->mnlen);
+               *(xnp++) = '_';
+      if(h_id) *(xnp++) = 'h';
+      llzs_strxcpy(stpcpy(xnp, "_"), fn, fnlen);
+    }
 
-  /* get function addr */
-  zsplg_upd_errstr(handle);
-  void * (*xfn_ptr)(void *, size_t, char *const*) = dlsym(handle->dlh, xfn_name);
+    /* get function addr */
+    zsplg_upd_errstr(handle);
+    xfn_ptr = dlsym(handle->dlh, xfn_name);
+  }
 
   if(zs_unlikely(!xfn_ptr)) {
     if(zsplg_upd_errstr(handle))
       handle->st = ZSPE_DLSYM;
-    return 0;
+    return zsplg_gdsa_null;
   }
 
   /* call function */
-  return xfn_ptr(h_id ? h_id : handle->plugin.data, fndat->argc, fndat->argv);
+  return xfn_ptr(h_id ? h_id : handle->plugin.data.data, fndat->argc, fndat->argv);
 }

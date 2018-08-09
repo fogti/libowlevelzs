@@ -1,4 +1,6 @@
-#include <zs/ll/plg.h>
+#define _ZS_PLUGIN__
+#include <zs/ll/dtors4plugins.h>
+#include <zs/ll/plg4plugins.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,25 +25,12 @@
                     '\0' --> OK
  */
 
-static bool do_destroy(void *data, const zsplg_destr_t dt) {
-  switch(dt) {
-    case ZSPD_HANDLE:
-      fclose((FILE*)data);
-      break;
-    case ZSPD_RET:
-      free(data);
-    default:
-      break;
-  }
-  return true;
+static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
+  if(argc != 2) return zsplg_gdsa_null;
+  RET_GDSA(fopen(argv[0], argv[1]), _Z10do_destroyP8_IO_FILE);
 }
 
-static void* h_create(void *data, size_t argc, char *argv[]) {
-  if(argc != 2) return 0;
-  return fopen(argv[0], argv[1]);
-}
-
-char * file_h_getchar(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_getchar(FILE *fh, const size_t argc, char *argv[]) {
   char * ret = malloc(3);
   if(ret) {
     const int nxc = fgetc(fh);
@@ -49,29 +38,29 @@ char * file_h_getchar(FILE *fh, const size_t argc, char *argv[]) {
     ret[1] = nxc;
     ret[2] = 0;
   }
-  return ret;
+  RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-char * file_h_getline(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_getline(FILE *fh, const size_t argc, char *argv[]) {
   char * ret = 0;
   size_t n = 0;
   getline(&ret, &n, fh);
-  return ret;
+  RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-char * file_h_is_open(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_is_open(FILE *fh, const size_t argc, char *argv[]) {
   char * ret = malloc(2);
   if(ret) {
     ret[0] = (fh ? '1' : '0');
     ret[1] = 0;
   }
-  return ret;
+  RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-char * file_h_puts(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_puts(FILE *fh, const size_t argc, char *argv[]) {
   int fpr = 1;
   char * ret = malloc(2);
-  if(!ret) return ret;
+  if(!ret) return zsplg_gdsa_null;
   ret[0] = 0;
   ret[1] = 0;
   if(argc < 1) {
@@ -88,14 +77,13 @@ char * file_h_puts(FILE *fh, const size_t argc, char *argv[]) {
   }
   if(fpr == EOF)
     ret[0] = 'e';
-  return ret;
+  RET_GDSA(ret, _Z10do_destroyPv);
 }
 
 zsplugin_t * init_file() {
   static zsplugin_t plg = {
-    .fn_destroy  = &do_destroy,
+    .data        = INLINE_GDSA(0, 0),
     .fn_h_create = &h_create,
-    .data        = 0
   };
   return &plg;
 }
