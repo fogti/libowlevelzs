@@ -34,7 +34,7 @@ typedef struct {
   zsplg_handle_t *plgh;
   const char *fn;
   size_t argc;
-  char *const *argv;
+  const char *const *argv;
 } zsplg_fncall_t;
 
 #ifdef __cplusplus
@@ -44,7 +44,7 @@ extern "C" {
   bool zsplg_close(zsplg_handle_t *handle);
   bool zsplg_destroy(zsplg_gdsa_t *gdsa);
 
-  zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *base, size_t argc, char *argv[]);
+  zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *base, size_t argc, const char *argv[]);
   zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *fndat, void *h_id);
 #ifdef __cplusplus
 }
@@ -71,7 +71,11 @@ namespace zsplg {
      */
   template<typename T>
   auto gdsa2unique_ptr(const zsplg_gdsa_t &gdsa) {
-    return std::unique_ptr<T, void(*)(void*)>(gdsa.data, gdsa_helper_t(gdsa.destroy));
+    return std::unique_ptr<T, gdsa_helper_t>(reinterpret_cast<T*>(gdsa.data), gdsa_helper_t(gdsa.destroy));
+  }
+  template<typename T>
+  auto gdsa2shared_ptr(const zsplg_gdsa_t &gdsa) {
+    return std::shared_ptr<T>(reinterpret_cast<T*>(gdsa.data), gdsa_helper_t(gdsa.destroy));
   }
 }
 }

@@ -97,7 +97,7 @@ bool zsplg_close(zsplg_handle_t *const handle) {
   return ZSP_OK == (handle->st = st);
 }
 
-zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *const base, size_t argc, char *argv[]) {
+zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *const base, size_t argc, const char *argv[]) {
   const zsplugin_t *const plgptr = &base->plugin;
   return plgptr->fn_h_create(plgptr->data.data, argc, argv);
 }
@@ -121,7 +121,7 @@ zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
   if(zs_unlikely(!handle || !fn || handle->st == ZSPE_DLOPN))
     RET_GDSA_NULL;
 
-  zsplg_gdsa_t (*xfn_ptr)(void *, size_t, char *const*);
+  zsplg_gdsa_t (*xfn_ptr)(void *, size_t, const char *const*);
 
   {
     /* construct function name */

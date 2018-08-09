@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     my_errmsg(plg.error_str);
   }
 
-  char * my_argv[] = { "echo", 0 };
+  const char * my_argv[] = { "echo", 0 };
   zsplg_gdsa_t handle = zsplg_h_create(&plg, 1, my_argv);
   zsplg_gdsa_t got_ret;
   int retcode = 0;
