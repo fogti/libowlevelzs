@@ -186,7 +186,7 @@ zsplg_gdsa_t spawn_h_ga(spawn_handle_t *sph, const size_t argc, const char *argv
 zsplg_gdsa_t spawn_h_exec(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
   const bool co = (argc == 1 && !strcmp(argv[0], "1"));
   int * ret = malloc(sizeof(int));
-  if(ret) *ret = zs_do_exec(sph, co);
+  if(zs_likely(ret)) *ret = zs_do_exec(sph, co);
   RET_GDSA(ret, _Z10do_destroyPv);
 }
 

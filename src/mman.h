@@ -18,10 +18,6 @@
 # define S_IRWXG (S_IRWXU >> 3)
 # define S_IRWXO (S_IRWXG >> 3)
 
-# ifdef __cplusplus
-extern "C" {
-# endif
-
 # define PROT_NONE       0
 # define PROT_READ       1
 # define PROT_WRITE      2
@@ -36,16 +32,19 @@ extern "C" {
 # define MAP_ANON        MAP_ANONYMOUS
 
 # define MAP_FAILED      ((void *)-1)
+# define madvise(A,L,V)
+# define MADV_SEQUENTIAL
 
-void*   mmap(void *addr, const size_t len, const int prot, const int flags, const int fildes, const off_t off);
-int     munmap(void *addr, const size_t len);
+# ifdef __cplusplus
+extern "C" {
+# endif
+
+void*   mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
+int     munmap(void *addr, size_t len);
 
 # ifdef __cplusplus
 };
 # endif
-/* end of win32 mmap */
-# define madvise(A,L,V)
-# define MADV_SEQUENTIAL
 #else
 # include <sys/mman.h>
 #endif
