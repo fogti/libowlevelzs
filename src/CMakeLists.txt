@@ -13,6 +13,12 @@ target_link_libraries(owlevelzs ${CMAKE_DL_LIBS})
 add_executable(plgtest-echo test/echo.c)
 target_link_libraries(plgtest-echo owlevelzs)
 
+function(src_compile_flags flag)
+  set_property(SOURCE ${ARGN} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
+endfunction()
+
+src_compile_flags("-fexceptions -funwind-tables" string/replace.cxx)
+
 # === INSTALL SECTION ===
 install(TARGETS owlevelzs DESTINATION "${INSTALL_LIB_DIR}")
 install(FILES cxa_noexcept.h mman.h MMAPguard.hpp zsig.h

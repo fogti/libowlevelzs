@@ -41,7 +41,6 @@ extern "C" {
   bool zsplg_close(zsplg_handle_t *handle);
   bool zsplg_destroy(zsplg_gdsa_t *gdsa);
 
-  zs_attrib(pure)
   zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *base, size_t argc, char *argv[]);
   zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *fndat, void *h_id);
 #ifdef __cplusplus
