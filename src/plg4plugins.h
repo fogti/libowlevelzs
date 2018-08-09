@@ -23,19 +23,7 @@ typedef struct {
 } zsplugin_t;
 
 #ifdef _ZS_PLUGIN__
-# include "llzs_config.h"
-# ifdef __cplusplus
-extern "C" {
-# endif
-  extern const zsplg_gdsa_t zsplg_gdsa_null;
-# ifdef __cplusplus
-}
-# endif
-# define INLINE_GDSA(X, Y) ((zsplg_gdsa_t) { (X), (Y) })
-zs_attrib(const) zs_attrib(hot)
-static inline zsplg_gdsa_t zsplg_make_gdsa(void *data, bool (*destroy)(void *data)) {
-  zsplg_gdsa_t ret = INLINE_GDSA(data, destroy);
-  return ret;
-}
-# define RET_GDSA(X,Y) return zsplg_make_gdsa((X), (Y))
+# define ZS_GDSA(X, Y) ((zsplg_gdsa_t) { (X), (bool(*)(void*))(Y) })
+# define RET_GDSA(X,Y) return ZS_GDSA((X), (Y))
+# define RET_GDSA_NULL RET_GDSA(0, 0)
 #endif

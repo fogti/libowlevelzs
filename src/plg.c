@@ -6,11 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-const zsplg_gdsa_t zsplg_gdsa_null = {
-  .data = 0,
-  .destroy = 0
-};
-
 static void zsplg_setstdl(zsplg_handle_t *const handle, const zsplg_status st) {
   handle->st        = st;
   handle->error_str = dlerror();
@@ -52,7 +47,6 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
   return ret;
 }
 
-zs_attrib(pure)
 bool zsplg_destroy(zsplg_gdsa_t *const gdsa) {
   if(zs_unlikely(!gdsa))
     return false;
@@ -74,7 +68,7 @@ bool zsplg_close(zsplg_handle_t *const handle) {
   if(st != ZSPE_DLOPN) {
     if(zs_unlikely(!zsplg_destroy(&plgptr->data)))
       st = ZSPE_PLG;
-    plgptr->data = zsplg_make_gdsa(0, 0);
+    plgptr->data = ZS_GDSA(0, 0);
 
     /* unload plugin */
     if(handle->dlh) {
@@ -95,7 +89,6 @@ bool zsplg_close(zsplg_handle_t *const handle) {
   return ZSP_OK == (handle->st = st);
 }
 
-zs_attrib(pure)
 zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *const base, size_t argc, char *argv[]) {
   const zsplugin_t *const plgptr = &base->plugin;
   return plgptr->fn_h_create(plgptr->data.data, argc, argv);
@@ -110,13 +103,13 @@ static bool zsplg_upd_errstr(zsplg_handle_t *const handle) {
 zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
   /* handle error conditions */
   if(zs_unlikely(!fndat))
-    return zsplg_gdsa_null;
+    RET_GDSA_NULL;
 
   zsplg_handle_t *const handle = fndat->plgh;
   const char     *const fn     = fndat->fn;
 
   if(zs_unlikely(!handle || !fn || handle->st == ZSPE_DLOPN))
-    return zsplg_gdsa_null;
+    RET_GDSA_NULL;
 
   zsplg_gdsa_t (*xfn_ptr)(void *, size_t, char *const*);
 
@@ -140,7 +133,7 @@ zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
   if(zs_unlikely(!xfn_ptr)) {
     if(zsplg_upd_errstr(handle))
       handle->st = ZSPE_DLSYM;
-    return zsplg_gdsa_null;
+    RET_GDSA_NULL;
   }
 
   /* call function */

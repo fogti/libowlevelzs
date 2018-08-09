@@ -26,7 +26,7 @@
  */
 
 static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
-  if(argc != 2) return zsplg_gdsa_null;
+  if(argc != 2) RET_GDSA_NULL;
   RET_GDSA(fopen(argv[0], argv[1]), _Z10do_destroyP8_IO_FILE);
 }
 
@@ -60,7 +60,7 @@ zsplg_gdsa_t file_h_is_open(FILE *fh, const size_t argc, char *argv[]) {
 zsplg_gdsa_t file_h_puts(FILE *fh, const size_t argc, char *argv[]) {
   int fpr = 1;
   char * ret = malloc(2);
-  if(!ret) return zsplg_gdsa_null;
+  if(!ret) RET_GDSA_NULL;
   ret[0] = 0;
   ret[1] = 0;
   if(argc < 1) {
@@ -82,7 +82,7 @@ zsplg_gdsa_t file_h_puts(FILE *fh, const size_t argc, char *argv[]) {
 
 zsplugin_t * init_file() {
   static zsplugin_t plg = {
-    .data        = INLINE_GDSA(0, 0),
+    .data        = ZS_GDSA(0, 0),
     .fn_h_create = &h_create,
   };
   return &plg;
