@@ -23,7 +23,7 @@
 
 typedef struct {
   char * cmd, * caout;
-  size_t cln, cosiz;
+  size_t rcln, cln, cosiz;
 } spawn_handle_t;
 
 static bool _Z10do_destroyP14spawn_handle_t(spawn_handle_t *const handle) {
@@ -36,8 +36,8 @@ static bool _Z10do_destroyP14spawn_handle_t(spawn_handle_t *const handle) {
 static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
   if(argc != 1) RET_GDSA_NULL;
   spawn_handle_t * ret = calloc(1, sizeof(spawn_handle_t));
-  ret->cln = strlen(argv[0]);
-  ret->cmd = llzs_strxdup(argv[0], ret->cln);
+  ret->cln = 1 + (ret->rcln = strlen(argv[0]));
+  ret->cmd = llzs_strxdup(argv[0], ret->rcln);
   if(!ret->cmd) {
     free(ret);
     ret = 0;
@@ -56,14 +56,28 @@ zsplugin_t * init_spawn() {
 }
 
 /* HELPER FUNCTIONS */
+static bool zs_xxx_tosiz(char ** restrict stptr, size_t * stsiz, const size_t trgsiz) {
+  if(*stsiz <= trgsiz || !*stptr) {
+    const size_t nwsiz = *stsiz + trgsiz + 1;
+    if(zs_unlikely(!(*stptr = realloc(*stptr, nwsiz)))) {
+      *stsiz = 0;
+      return false;
+    } else {
+      *stsiz = nwsiz;
+    }
+  }
+  (*stptr)[trgsiz] = 0;
+  return true;
+}
+
 typedef void (*zs_spap_aph_fnt)(char ** restrict cmpp, const char * restrict arg, size_t arglen);
 static bool zs_spap_appenh(spawn_handle_t * restrict sph, const size_t arglen, const size_t aaplen,
               const char * restrict arg, const zs_spap_aph_fnt fn) {
-  sph->cmd = realloc(sph->cmd, sph->cln + arglen + aaplen);
-  if(!sph->cmd) return false;
-  char * cmdptr = sph->cmd + sph->cln;
+  zs_xxx_tosiz(&sph->cmd, &sph->cln, sph->rcln + arglen + aaplen);
+  if(zs_unlikely(!sph->cmd)) return false;
+  char * cmdptr = sph->cmd + sph->rcln;
   fn(&cmdptr, arg, arglen);
-  sph->cln = (cmdptr - sph->cmd);
+  sph->rcln = (cmdptr - sph->cmd);
   return true;
 }
 
@@ -79,39 +93,35 @@ static void zs__spqh(char ** restrict cmpp, const char * restrict arg, const siz
 }
 
 static bool zs_spap_simple(spawn_handle_t *sph, const char *arg) {
-  const size_t arglen = strlen(arg);
-  return zs_spap_appenh(sph, arglen, 2, arg, &zs__spsh);
+  return zs_spap_appenh(sph, strlen(arg), 2, arg, &zs__spsh);
 }
 
 static bool zs_spap_quote(spawn_handle_t *sph, const char *arg) {
-  size_t n = 0;
-  char * tmp = llzs_streplace(arg, "'", "\\\\'", &n);
+  size_t n = strlen(arg);
+  const char * tmp;
+  { /* only call llzs_streplace if needed */
+    const char * const eoas = arg + n;
+    for(tmp = arg; tmp != eoas; ++tmp)
+      if(*tmp == '\'') {
+        tmp = llzs_streplace(arg, "'", "\\\\'", &n);
+        goto cont_tmp;
+      }
+
+    tmp = arg;
+  }
+ cont_tmp:
   if(tmp) {
     /* 4 = strlen(" \"\"\0")
        CMD += "\""+TMP+"\"" */
     const bool ret = zs_spap_appenh(sph, n, 4, tmp, &zs__spqh);
-    free(tmp);
+    if(tmp != arg) free((void*)tmp);
     return ret;
   }
 
   return false;
 }
 
-static bool zs_spap(spawn_handle_t *sph, const char *arg, const bool do_quote) {
-  return (do_quote ? zs_spap_quote : zs_spap_simple)(sph, arg);
-}
-
-static bool zs_caout_tosiz(spawn_handle_t *sph, const size_t trgsiz) {
-  char ** const coptr = &sph->caout;
-  if(sph->cosiz <= trgsiz) {
-    const size_t nwsiz = sph->cosiz + trgsiz + 1;
-    *coptr = realloc(*coptr, nwsiz);
-    sph->cosiz = (*coptr) ? nwsiz : 0;
-  }
-  if(!*coptr) return false;
-  (*coptr)[trgsiz] = 0;
-  return true;
-}
+#define zs_caout_tosiz(SPH,TS) zs_xxx_tosiz(&SPH->caout, &SPH->cosiz, (TS))
 
 static bool zs_caout_shtf(spawn_handle_t *sph) {
   char ** const coptr = &sph->caout;
@@ -164,7 +174,7 @@ zsplg_gdsa_t spawn_h_ap(spawn_handle_t *sph, const size_t argc, const char *argv
     }
 
   for(; argi < argc; ++argi)
-    if(!zs_spap(sph, argv[argi], do_quote))
+    if(!((do_quote ? zs_spap_quote : zs_spap_simple)(sph, argv[argi])))
       RET_GDSA(0, 0);
   RET_GDSA("-", 0);
 }
