@@ -19,7 +19,7 @@ typedef struct zsplg_gdsa {
 
 typedef struct {
   zsplg_gdsa_t data;
-  zsplg_gdsa_t (*fn_h_create)(void *data, size_t argc, char *argv[]);
+  zsplg_gdsa_t (*fn_h_create)(void *data, size_t argc, const char *argv[]);
 } zsplugin_t;
 
 #ifdef _ZS_PLUGIN__

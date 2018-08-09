@@ -33,7 +33,7 @@ static bool _Z10do_destroyP14spawn_handle_t(spawn_handle_t *const handle) {
   return true;
 }
 
-static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
+static zsplg_gdsa_t h_create(void *data, size_t argc, const char *argv[]) {
   if(argc != 1) RET_GDSA_NULL;
   spawn_handle_t * ret = calloc(1, sizeof(spawn_handle_t));
   ret->cln = 1 + (ret->rcln = strlen(argv[0]));

@@ -1,4 +1,5 @@
 #define _ZS_PLUGIN__
+#define _GNU_SOURCE
 #include <zs/ll/dtors4plugins.h>
 #include <zs/ll/plg4plugins.h>
 #include <stdio.h>
@@ -25,12 +26,12 @@
                     '\0' --> OK
  */
 
-static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
+static zsplg_gdsa_t h_create(void *data, size_t argc, const char *argv[]) {
   if(argc != 2) RET_GDSA_NULL;
   RET_GDSA(fopen(argv[0], argv[1]), _Z10do_destroyP8_IO_FILE);
 }
 
-zsplg_gdsa_t file_h_getchar(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_getchar(FILE *fh, const size_t argc, const char *argv[]) {
   char * ret = malloc(3);
   if(ret) {
     const int nxc = fgetc(fh);
@@ -41,14 +42,14 @@ zsplg_gdsa_t file_h_getchar(FILE *fh, const size_t argc, char *argv[]) {
   RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-zsplg_gdsa_t file_h_getline(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_getline(FILE *fh, const size_t argc, const char *argv[]) {
   char * ret = 0;
   size_t n = 0;
   getline(&ret, &n, fh);
   RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-zsplg_gdsa_t file_h_is_open(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_is_open(FILE *fh, const size_t argc, const char *argv[]) {
   char * ret = malloc(2);
   if(ret) {
     ret[0] = (fh ? '1' : '0');
@@ -57,7 +58,7 @@ zsplg_gdsa_t file_h_is_open(FILE *fh, const size_t argc, char *argv[]) {
   RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-zsplg_gdsa_t file_h_puts(FILE *fh, const size_t argc, char *argv[]) {
+zsplg_gdsa_t file_h_puts(FILE *fh, const size_t argc, const char *argv[]) {
   int fpr = 1;
   char * ret = malloc(2);
   if(!ret) RET_GDSA_NULL;
@@ -66,12 +67,11 @@ zsplg_gdsa_t file_h_puts(FILE *fh, const size_t argc, char *argv[]) {
   if(argc < 1) {
     // not enough arguments
     ret[0] = 'i';
-  } else if(argc == 2 && (!strcmp(argv[0], "-") || !strcmp(argv[0], "\"-\""))) {
+  } else if(argc == 2 && (!strcmp(argv[0], "-") || !strcmp(argv[0], "\"-\"")) && argv[1][0]) {
     // unquote string before writing
-    // remove last quote-mark
-    argv[1][strlen(argv[1]) - 1] = 0;
-    // print with inc 1
-    fpr = fputs(&argv[1][1], fh);
+    // remove last quote-mark, print with inc 1
+    char *tmp = strndupa(&argv[1][1], strlen(argv[1]) - 2);
+    fpr = fputs(tmp, fh);
   } else {
     fpr = fputs(argv[0], fh);
   }
