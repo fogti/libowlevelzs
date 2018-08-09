@@ -1,4 +1,6 @@
-#include <zs/ll/plg.h>
+#define _ZS_PLUGIN__
+#include <zs/ll/dtors4plugins.h>
+#include <zs/ll/plg4plugins.h>
 #include <zs/ll/string/replace.hpp>
 #include <zs/ll/string/xcpy.h>
 #include <llzs_config.h>
@@ -24,23 +26,15 @@ typedef struct {
   size_t cln, cosiz;
 } spawn_handle_t;
 
-static bool do_destroy(void *data, const zsplg_destr_t dt) {
-  switch(dt) {
-    case ZSPD_HANDLE:
-      {
-        spawn_handle_t * handle = data;
-        free(handle->cmd);
-        free(handle->caout);
-      }
-    case ZSPD_RET:
-      free(data);
-    default:
-      return true;
-  }
+static bool _Z10do_destroyP14spawn_handle_t(spawn_handle_t *const handle) {
+  free(handle->cmd);
+  free(handle->caout);
+  free(handle);
+  return true;
 }
 
-static void *h_create(void *data, size_t argc, char *argv[]) {
-  if(argc != 1) return 0;
+static zsplg_gdsa_t h_create(void *data, size_t argc, char *argv[]) {
+  if(argc != 1) return zsplg_gdsa_null;
   spawn_handle_t * ret = calloc(1, sizeof(spawn_handle_t));
   ret->cln = strlen(argv[0]);
   ret->cmd = llzs_strxdup(argv[0], ret->cln);
@@ -50,14 +44,13 @@ static void *h_create(void *data, size_t argc, char *argv[]) {
   }
   ret->caout = 0;
   ret->cosiz = 0;
-  return ret;
+  RET_GDSA(ret, _Z10do_destroyP14spawn_handle_t);
 }
 
 zsplugin_t * init_spawn() {
   static zsplugin_t plg = {
-    .fn_destroy  = &do_destroy,
+    .data        = INLINE_GDSA(0, 0),
     .fn_h_create = &h_create,
-    .data        = 0
   };
   return &plg;
 }
@@ -95,20 +88,17 @@ static bool zs_spap_quote(spawn_handle_t *sph, const char *arg) {
   char * tmp = llzs_streplace(arg, "'", "\\\\'", &n);
   if(tmp) {
     /* 4 = strlen(" \"\"\0")
-       CMD += "\""+TMP+        */
-    if(zs_spap_appenh(sph, n, 4, tmp, &zs__spqh))
-      return true;
-    else
-      free(tmp);
+       CMD += "\""+TMP+"\"" */
+    const bool ret = zs_spap_appenh(sph, n, 4, tmp, &zs__spqh);
+    free(tmp);
+    return ret;
   }
 
   return false;
 }
 
 static bool zs_spap(spawn_handle_t *sph, const char *arg, const bool do_quote) {
-  return do_quote
-    ? zs_spap_quote(sph, arg)
-    : zs_spap_simple(sph, arg);
+  return (do_quote ? zs_spap_quote : zs_spap_simple)(sph, arg);
 }
 
 static bool zs_caout_tosiz(spawn_handle_t *sph, const size_t trgsiz) {
@@ -163,36 +153,36 @@ static int zs_do_exec(spawn_handle_t *sph, const bool co) {
 }
 
 /* (HANDLE) MEMBER FUNCTIONS */
-const char * spawn_h_ap(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+zsplg_gdsa_t spawn_h_ap(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
   size_t argi = 0;
-  bool do_quote = false;
+  bool do_quote = true;
   if(argc >= 2 && argv[0][0] == '\\' && argv[0][1] && !argv[0][2])
     switch(argv[0][1]) {
-      case 'q': do_quote = true;
-      case '-': ++argi;
+      case '-': do_quote = false;
+      case 'q': ++argi;
       default : break;
     }
 
   for(; argi < argc; ++argi)
     if(!zs_spap(sph, argv[argi], do_quote))
-      return 0;
-  return strdup("-");
+      return zsplg_gdsa_null;
+  RET_GDSA("-", 0);
 }
 
-const char * spawn_h_ga(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
-  return llzs_strxdup(sph->cmd, sph->cln);
+zsplg_gdsa_t spawn_h_ga(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+  RET_GDSA(llzs_strxdup(sph->cmd, sph->cln), _Z10do_destroyPv);
 }
 
-int * spawn_h_exec(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+zsplg_gdsa_t spawn_h_exec(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
   const bool co = (argc == 1 && !strcmp(argv[0], "1"));
   int * ret = malloc(sizeof(int));
   if(ret) *ret = zs_do_exec(sph, co);
-  return ret;
+  RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-int * _Z7spawn_hPvjPPKc(spawn_handle_t *sph, const size_t argc, const char *argv[])
+zsplg_gdsa_t _Z7spawn_hPvjPPKc(spawn_handle_t *sph, const size_t argc, const char *argv[])
   zs_attrib(alias("spawn_h_exec"));
 
-const char * spawn_h_caout(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
-  return llzs_strxdup(sph->caout, sph->cosiz);
+zsplg_gdsa_t spawn_h_caout(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+  RET_GDSA(llzs_strxdup(sph->caout, sph->cosiz), _Z10do_destroyPv);
 }

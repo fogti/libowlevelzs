@@ -15,8 +15,8 @@ int main(int argc, char *argv[]) {
   }
 
   char * my_argv[] = { "echo", 0 };
-  void * handle = zsplg_h_create(&plg, 1, my_argv);
-  void * got_ret;
+  zsplg_gdsa_t handle = zsplg_h_create(&plg, 1, my_argv);
+  zsplg_gdsa_t got_ret;
   int retcode = 0;
 
   /* zsplg pseudo-code
@@ -33,19 +33,19 @@ int main(int argc, char *argv[]) {
       .argv = argv + 1
     };
     got_ret = zsplg_h_call(&hfna, handle);
-    if(!got_ret) my_errmsg("spawn.ap failed");
-    zsplg_free_ret(&plg, got_ret);
+    if(!zsplg_gdsa_get(got_ret)) my_errmsg("spawn.ap failed");
+    zsplg_destroy(&got_ret);
     hfna.fn = "exec";
     hfna.argc = 0;
     my_argv[0] = 0;
     hfna.argv = my_argv;
     got_ret = zsplg_h_call(&hfna, handle);
-    if(!got_ret) my_errmsg("spawn.exec failed");
-    retcode = *((int*)got_ret);
-    zsplg_free_ret(&plg, got_ret);
+    if(!zsplg_gdsa_get(got_ret)) my_errmsg("spawn.exec failed");
+    retcode = *((int*)zsplg_gdsa_get(got_ret));
+    zsplg_destroy(&got_ret);
   }
 
-  zsplg_h_destroy(&plg, handle);
+  zsplg_destroy(&handle);
   zsplg_close(&plg);
   return retcode;
 }
