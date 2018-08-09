@@ -17,7 +17,10 @@ char * llzs_strxcpy(char * restrict dest, const char * restrict src, size_t n) n
 char * llzs_strxdup(const char * str, size_t n) noexcept {
   /* assert(strlen(str) == n); */
   if(zs_unlikely(!str)) return 0;
-  char *const ret = calloc(n + 1, 1);
-  if(zs_likely(ret)) memcpy(ret, str, n);
+  char *const ret = malloc(n + 1);
+  if(zs_likely(ret)) {
+    memcpy(ret, str, n);
+    ret[n] = 0;
+  }
   return ret;
 }

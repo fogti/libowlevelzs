@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "-fno-plt -fno-rtti -fno-exceptions -fno-unwind-tables -rdyn
 #set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections")
 
 add_library(owlevelzs SHARED lowlevel.c MMAPguard.cxx
-  dtors4plugins.c plg.c plugins/file.c plugins/spawn.c
+  dtors4plugins.c plg.c plgx.cxx plugins/file.c plugins/spawn.c
   string/csarray.cxx string/replace.cxx string/xcpy.c)
 set_target_properties(owlevelzs PROPERTIES VERSION "0.0.0" SOVERSION 0)
 target_link_libraries(owlevelzs ${CMAKE_DL_LIBS})
