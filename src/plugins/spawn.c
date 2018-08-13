@@ -38,12 +38,10 @@ static zsplg_gdsa_t h_create(void *data, size_t argc, const char *argv[]) {
   spawn_handle_t * ret = calloc(1, sizeof(spawn_handle_t));
   ret->cln = 1 + (ret->rcln = strlen(argv[0]));
   ret->cmd = llzs_strxdup(argv[0], ret->rcln);
-  if(!ret->cmd) {
+  if(zs_unlikely(!ret->cmd)) {
     free(ret);
     ret = 0;
   }
-  ret->caout = 0;
-  ret->cosiz = 0;
   RET_GDSA(ret, _Z10do_destroyP14spawn_handle_t);
 }
 
@@ -58,13 +56,13 @@ zsplugin_t * init_spawn() {
 /* HELPER FUNCTIONS */
 static bool zs_xxx_tosiz(char ** restrict stptr, size_t * stsiz, const size_t trgsiz) {
   if(*stsiz <= trgsiz || !*stptr) {
-    const size_t nwsiz = *stsiz + trgsiz + 1;
+    const size_t olsiz = *stsiz;
+    const size_t nwsiz = (olsiz ? (olsiz * 2) : 1) + trgsiz;
     if(zs_unlikely(!(*stptr = realloc(*stptr, nwsiz)))) {
       *stsiz = 0;
       return false;
-    } else {
-      *stsiz = nwsiz;
     }
+    *stsiz = nwsiz;
   }
   (*stptr)[trgsiz] = 0;
   return true;
@@ -106,19 +104,16 @@ static bool zs_spap_quote(spawn_handle_t *sph, const char *arg) {
         tmp = llzs_streplace(arg, "'", "\\\\'", &n);
         goto cont_tmp;
       }
-
-    tmp = arg;
   }
+  tmp = arg;
+
  cont_tmp:
-  if(tmp) {
-    /* 4 = strlen(" \"\"\0")
-       CMD += "\""+TMP+"\"" */
-    const bool ret = zs_spap_appenh(sph, n, 4, tmp, &zs__spqh);
-    if(tmp != arg) free((void*)tmp);
-    return ret;
-  }
-
-  return false;
+  if(!tmp) return false;
+  /* 4 = strlen(" \"\"\0")
+     CMD += "\""+TMP+"\"" */
+  const bool ret = zs_spap_appenh(sph, n, 4, tmp, &zs__spqh);
+  if(tmp != arg) free((void*)tmp);
+  return ret;
 }
 
 #define zs_caout_tosiz(SPH,TS) zs_xxx_tosiz(&SPH->caout, &SPH->cosiz, (TS))
@@ -134,32 +129,31 @@ static bool zs_caout_shtf(spawn_handle_t *sph) {
   return *coptr;
 }
 
-static int zs_do_exec(spawn_handle_t *sph, const bool co) {
-#define ZS_ERROR return -1
-  int ret;
-  if(!co) {
-    ret = system(sph->cmd);
-  } else {
-    char buf[1024];
-    size_t pos = 0;
-    if(!zs_caout_tosiz(sph, 0))            ZS_ERROR;
-    FILE *my_pipe = popen(sph->cmd, "r");
-    if(!my_pipe)                           ZS_ERROR;
+static int zs_do_exech(spawn_handle_t *sph, const bool co) {
+  if(!co)                                return system(sph->cmd);
+  if(!zs_caout_tosiz(sph, 0))            return -1;
+  FILE *my_pipe = popen(sph->cmd, "r");
+  if(!my_pipe)                           return -1;
 
-    while(fgets(buf, sizeof(buf), my_pipe)) {
-      const size_t readlen = strlen(buf), enpos = pos + readlen;
-      if(!zs_caout_tosiz(sph, enpos))
-        { pclose(my_pipe); ZS_ERROR; }
-      llzs_strxcpy(sph->cmd + pos, buf, readlen);
-      pos = enpos;
-    }
-    ret = pclose(my_pipe);
-    if(!zs_caout_shtf(sph))                ZS_ERROR;
+  char buf[1024];
+  size_t pos = 0;
+  while(fgets(buf, sizeof(buf), my_pipe)) {
+    const size_t readlen = strlen(buf), enpos = pos + readlen;
+    if(!zs_caout_tosiz(sph, enpos))      { pclose(my_pipe); return -1; }
+    llzs_strxcpy(sph->cmd + pos, buf, readlen);
+    pos = enpos;
   }
+  const int ret = pclose(my_pipe);
+  if(!zs_caout_shtf(sph))                return -1;
+  return ret;
+}
+
+static int zs_do_exec(spawn_handle_t *sph, const bool co) {
+  const int ret = zs_do_exech(sph, co);
+  if(ret == -1) return ret;
   return (WIFSIGNALED(ret))
     ? (256 + WTERMSIG(ret))
     :     WEXITSTATUS(ret);
-#undef ZS_ERROR
 }
 
 /* (HANDLE) MEMBER FUNCTIONS */
@@ -175,7 +169,7 @@ zsplg_gdsa_t spawn_h_ap(spawn_handle_t *sph, const size_t argc, const char *argv
 
   for(; argi < argc; ++argi)
     if(!((do_quote ? zs_spap_quote : zs_spap_simple)(sph, argv[argi])))
-      RET_GDSA(0, 0);
+      RET_GDSA_NULL;
   RET_GDSA("-", 0);
 }
 

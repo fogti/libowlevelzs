@@ -31,6 +31,11 @@ static zsplg_gdsa_t h_create(void *data, size_t argc, const char *argv[]) {
   RET_GDSA(fopen(argv[0], argv[1]), _Z10do_destroyP8_IO_FILE);
 }
 
+static inline zsplg_gdsa_t pack_ret(char * const ret) {
+  RET_GDSA(ret, ret ? _Z10do_destroyPv : 0);
+}
+#define RET_PACK return pack_ret(ret)
+
 zsplg_gdsa_t file_h_getchar(FILE *fh, const size_t argc, const char *argv[]) {
   char * ret = malloc(3);
   if(ret) {
@@ -39,45 +44,42 @@ zsplg_gdsa_t file_h_getchar(FILE *fh, const size_t argc, const char *argv[]) {
     ret[1] = nxc;
     ret[2] = 0;
   }
-  RET_GDSA(ret, _Z10do_destroyPv);
+  RET_PACK;
 }
 
 zsplg_gdsa_t file_h_getline(FILE *fh, const size_t argc, const char *argv[]) {
   char * ret = 0;
   size_t n = 0;
   getline(&ret, &n, fh);
-  RET_GDSA(ret, _Z10do_destroyPv);
+  RET_PACK;
 }
 
 zsplg_gdsa_t file_h_is_open(FILE *fh, const size_t argc, const char *argv[]) {
-  char * ret = malloc(2);
-  if(ret) {
-    ret[0] = (fh ? '1' : '0');
-    ret[1] = 0;
-  }
-  RET_GDSA(ret, _Z10do_destroyPv);
+  char    *ret = calloc(2, 1);
+  if(ret) *ret = '0' + (fh?1:0);
+  RET_PACK;
 }
 
 zsplg_gdsa_t file_h_puts(FILE *fh, const size_t argc, const char *argv[]) {
-  int fpr = 1;
-  char * ret = malloc(2);
-  if(!ret) RET_GDSA_NULL;
-  ret[0] = 0;
-  ret[1] = 0;
-  if(argc < 1) {
+  char * ret = calloc(2, 1);
+  if(!ret) {
+    // do nothing
+  } else if(argc < 1) {
     // not enough arguments
     ret[0] = 'i';
-  } else if(argc == 2 && (!strcmp(argv[0], "-") || !strcmp(argv[0], "\"-\"")) && argv[1][0]) {
-    // unquote string before writing
-    // remove last quote-mark, print with inc 1
-    char *tmp = strndupa(&argv[1][1], strlen(argv[1]) - 2);
-    fpr = fputs(tmp, fh);
   } else {
-    fpr = fputs(argv[0], fh);
+    const char *const tmp =
+      (argc == 2 && (!strcmp(argv[0], "-") || !strcmp(argv[0], "\"-\"")) && argv[1][0])
+      ?
+        // unquote string before writing
+        // remove last quote-mark, print with inc 1
+        strndupa(&argv[1][1], strlen(argv[1]) - 2)
+      :
+        *argv;
+    if(EOF == fputs(tmp, fh))
+      ret[0] = 'e';
   }
-  if(fpr == EOF)
-    ret[0] = 'e';
-  RET_GDSA(ret, _Z10do_destroyPv);
+  RET_PACK;
 }
 
 zsplugin_t * init_file() {
