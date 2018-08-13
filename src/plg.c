@@ -27,7 +27,6 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
 
   /* init_fn_name = "init_" + modname + "\0" */
   char init_fn_name[ret.mnlen + 6];
-  memset(init_fn_name, 0, sizeof(init_fn_name));
   {
     char *tmp = init_fn_name;
     llzs_strixcpy(&tmp, "init_", 5);
@@ -127,7 +126,6 @@ zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
     /* construct function name */
     const size_t fnlen = strlen(fn);
     char xfn_name[handle->mnlen + fnlen + 3 + (h_id ? 1 : 0)];
-    memset(xfn_name, 0, sizeof(xfn_name));
     {
       char *xnp = llzs_strxcpy(xfn_name, handle->modname, handle->mnlen);
                *(xnp++) = '_';
