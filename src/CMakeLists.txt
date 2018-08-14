@@ -28,5 +28,6 @@ install(EXPORT LowlevelZSTargets DESTINATION "${INSTALL_CMAKE_DIR}" NAMESPACE Lo
 
 install(FILES cxa_noexcept.h hash.hpp mman.h MMAPguard.hpp zsig.h
     dtors4plugins.h plg.h plg4plugins.h
-    string/csarray.hpp string/replace.hpp string/xcpy.h
   DESTINATION "${INSTALL_INCLUDE_DIR}")
+
+add_subdirectory(string)
