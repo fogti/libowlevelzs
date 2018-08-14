@@ -1,4 +1,4 @@
-set(CMAKE_C_FLAGS "-fno-plt -fno-exceptions -fno-unwind-tables")
+set(CMAKE_C_FLAGS "-fno-plt -fno-exceptions -fno-unwind-tables -rdynamic")
 set(CMAKE_CXX_FLAGS "-fno-plt -fno-rtti -fno-exceptions -fno-unwind-tables -rdynamic")
 
 add_library(lowlevelzs SHARED ctchk.cxx hash.c lowlevel.c MMAPguard.cxx
