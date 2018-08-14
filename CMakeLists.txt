@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.7)
 cmake_policy(SET CMP0048 NEW)
 project(libowlevelzs)
 
-set(INSTALL_LIB_DIR     lib               CACHE PATH "Installation directory for libraries")
+set(INSTALL_LIB_DIR     lib${LIB_SUFFIX}  CACHE PATH "Installation directory for libraries")
 set(INSTALL_INCLUDE_DIR include/zs/ll     CACHE PATH "Installation directory for header files")
-set(INSTALL_CMAKE_DIR lib${LIB_SUFFIX}/cmake/LowlevelZS CACHE PATH "Installation directory for CMake module files")
+set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/LowlevelZS CACHE PATH "Installation directory for CMake module files")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
