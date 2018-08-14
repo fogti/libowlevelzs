@@ -7,7 +7,7 @@
 
 # Include dir
 find_path(LowlevelZS_INCLUDE_DIR
-  NAMES ll/plg.h
+  NAMES ll/cxa_noexcept.h ll/plg.h
   PATHS @INSTALL_INCLUDE_DIR@
   PATH_SUFFIXES zs
 )
