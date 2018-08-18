@@ -13,7 +13,7 @@ function(src_compile_flags flag)
   set_property(SOURCE ${ARGN} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
 endfunction()
 
-src_compile_flags("-fexceptions -funwind-tables" string/replace.cxx)
+src_compile_flags("-fexceptions -funwind-tables" string/csarray.cxx string/replace.cxx)
 
 # === TEST EXECUTABLES === (check if plugin system works)
 add_executable(plgtest-echo test/echo.c)

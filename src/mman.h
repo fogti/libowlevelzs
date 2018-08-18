@@ -33,7 +33,7 @@
 
 # define MAP_FAILED      ((void *)-1)
 # define madvise(A,L,V)
-# define MADV_SEQUENTIAL
+# define MADV_SEQUENTIAL 1
 
 # ifdef __cplusplus
 extern "C" {
