@@ -4,7 +4,6 @@
  **/
 #include "mman.h"
 #include "MMAPguard.hpp"
-#include <llzs_config.h>
 
 namespace llzs {
   void MMAPguard::_do_unmap() noexcept {
@@ -21,6 +20,8 @@ namespace llzs {
   }
 
   void MMAPguard::advise(const int adv) const noexcept {
+# ifndef WIN32
     if(zs_likely(valid())) madvise(_addr, _len, adv);
+# endif
   }
 }

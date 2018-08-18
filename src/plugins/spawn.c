@@ -157,7 +157,8 @@ static int zs_do_exec(spawn_handle_t *sph, const bool co) {
 }
 
 /* (HANDLE) MEMBER FUNCTIONS */
-zsplg_gdsa_t spawn_h_ap(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+#define SPH_FN(N) zsplg_gdsa_t spawn_h_##N(spawn_handle_t *sph, const size_t argc, const char *argv[])
+SPH_FN(ap) {
   size_t argi = 0;
   bool do_quote = true;
   if(argc >= 2 && argv[0][0] == '\\' && argv[0][1] && !argv[0][2])
@@ -173,17 +174,17 @@ zsplg_gdsa_t spawn_h_ap(spawn_handle_t *sph, const size_t argc, const char *argv
   RET_GDSA("-", 0);
 }
 
-zsplg_gdsa_t spawn_h_ga(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+SPH_FN(ga) {
   RET_GDSA(llzs_strxdup(sph->cmd, sph->cln), _Z10do_destroyPv);
 }
 
-zsplg_gdsa_t spawn_h_exec(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+SPH_FN(exec) {
   const bool co = (argc == 1 && !strcmp(argv[0], "1"));
   int * ret = malloc(sizeof(int));
   if(zs_likely(ret)) *ret = zs_do_exec(sph, co);
   RET_GDSA(ret, _Z10do_destroyPv);
 }
 
-zsplg_gdsa_t spawn_h_caout(spawn_handle_t *sph, const size_t argc, const char *argv[]) {
+SPH_FN(caout) {
   RET_GDSA(llzs_strxdup(sph->caout, sph->cosiz), _Z10do_destroyPv);
 }
