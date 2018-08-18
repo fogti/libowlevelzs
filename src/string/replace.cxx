@@ -52,8 +52,7 @@ extern "C" {
     try {
       string tmp(stval, *n);
       llzs::string_inreplace(tmp, search, replace);
-      *n = tmp.size();
-      return llzs_strxdup(tmp.c_str(), tmp.size());
+      return llzs_strxdup(tmp.c_str(), (*n = tmp.size()));
     } catch(...) {
       return nullptr;
     }
