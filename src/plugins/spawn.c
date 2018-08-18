@@ -68,38 +68,34 @@ static bool zs_xxx_tosiz(char ** restrict stptr, size_t * stsiz, const size_t tr
   return true;
 }
 
-typedef void (*zs_spap_aph_fnt)(char ** restrict cmpp, const char * restrict arg, size_t arglen);
-static bool zs_spap_appenh(spawn_handle_t * restrict sph, const size_t arglen, const size_t aaplen,
-              const char * restrict arg, const zs_spap_aph_fnt fn) {
+typedef struct {
+  const size_t aaplen; /* strlen(s_pre) = aaplen >> 1; strlen(l_post) = aaplen >> 2; */
+  const char * restrict s_pre, * restrict s_post;
+} appenh_dat;
+
+static bool zs_spap_appenh(spawn_handle_t * restrict sph, const size_t arglen,
+              const char * restrict arg, const appenh_dat * restrict dat) {
+  const size_t aaplen = dat->aaplen;
   zs_xxx_tosiz(&sph->cmd, &sph->cln, sph->rcln + arglen + aaplen);
   if(zs_unlikely(!sph->cmd)) return false;
   char * cmdptr = sph->cmd + sph->rcln;
-  fn(&cmdptr, arg, arglen);
+  llzs_strixcpy(&cmdptr, dat->s_pre, aaplen >> 1);
+  llzs_strixcpy(&cmdptr, arg, arglen);
+  llzs_strixcpy(&cmdptr, dat->s_post, aaplen >> 2);
   sph->rcln = (cmdptr - sph->cmd);
   return true;
 }
 
-static void zs__spsh(char ** restrict cmpp, const char * restrict arg, const size_t arglen) {
-  llzs_strixcpy(cmpp, " ", 1);
-  llzs_strixcpy(cmpp, arg, arglen);
+static bool zs_spap_simple(spawn_handle_t *sph, register const char *arg) {
+  appenh_dat dat = { 2, " ", 0 };
+  return zs_spap_appenh(sph, strlen(arg), arg, &dat);
 }
 
-static void zs__spqh(char ** restrict cmpp, const char * restrict arg, const size_t arglen) {
-  llzs_strixcpy(cmpp, " \"", 2);
-  llzs_strixcpy(cmpp, arg, arglen);
-  llzs_strixcpy(cmpp, "\"", 1);
-}
-
-static bool zs_spap_simple(spawn_handle_t *sph, const char *arg) {
-  return zs_spap_appenh(sph, strlen(arg), 2, arg, &zs__spsh);
-}
-
-static bool zs_spap_quote(spawn_handle_t *sph, const char *arg) {
+static bool zs_spap_quote(spawn_handle_t *sph, register const char *arg) {
   size_t n = strlen(arg);
   const char * tmp;
   { /* only call llzs_streplace if needed */
-    const char * const eoas = arg + n;
-    for(tmp = arg; tmp != eoas; ++tmp)
+    for(tmp = arg; tmp != arg + n; ++tmp)
       if(*tmp == '\'') {
         tmp = llzs_streplace(arg, "'", "\\\\'", &n);
         goto cont_tmp;
@@ -111,9 +107,12 @@ static bool zs_spap_quote(spawn_handle_t *sph, const char *arg) {
   if(!tmp) return false;
   /* 4 = strlen(" \"\"\0")
      CMD += "\""+TMP+"\"" */
-  const bool ret = zs_spap_appenh(sph, n, 4, tmp, &zs__spqh);
-  if(tmp != arg) free((void*)tmp);
-  return ret;
+  {
+    const appenh_dat dat = { 4, " \"", "\"" };
+    const bool ret = zs_spap_appenh(sph, n, tmp, &dat);
+    if(tmp != arg) free((void*)tmp);
+    return ret;
+  }
 }
 
 #define zs_caout_tosiz(SPH,TS) zs_xxx_tosiz(&SPH->caout, &SPH->cosiz, (TS))
