@@ -53,7 +53,7 @@ static inline void partial_memcpy_bytes(char dest[WHOLE], const char *const __re
 template<size_t WHOLE, typename T>
 static inline void partial_memcpy_lazy(char (&dest)[WHOLE], const T *const __restrict__ src) noexcept {
   static_assert(WHOLE >= sizeof(T));
-  partial_memcpy_bytes<WHOLE>(dest, src, sizeof(T));
+  llzs_intern::partial_memcpy<WHOLE>(dest, src, sizeof(T));
 }
 
 // use size of src as real size
