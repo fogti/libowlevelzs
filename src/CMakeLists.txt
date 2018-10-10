@@ -26,7 +26,7 @@ target_link_libraries(plgtest-xx lowlevelzs)
 install(TARGETS lowlevelzs DESTINATION "${INSTALL_LIB_DIR}" EXPORT LowlevelZSTargets)
 install(EXPORT LowlevelZSTargets DESTINATION "${INSTALL_CMAKE_DIR}" NAMESPACE LowlevelZS:: COMPONENT dev)
 
-install(FILES cxa_noexcept.h hash.hpp mman.h MMAPguard.hpp zsig.h
+install(FILES cxa_noexcept.h hash.hpp memut.hpp mman.h MMAPguard.hpp zsig.h
     dtors4plugins.h plg.h plg4plugins.h
   DESTINATION "${INSTALL_INCLUDE_DIR}")
 
