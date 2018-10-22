@@ -14,6 +14,7 @@
 typedef struct zsplg_gdsa {
   /* destroy invoc: .destroy(.data) */
   void* data;
+  size_t len;
   bool (*destroy)(void *data);
 } zsplg_gdsa_t;
 
@@ -23,7 +24,8 @@ typedef struct {
 } zsplugin_t;
 
 #ifdef _ZS_PLUGIN__
-# define ZS_GDSA(X, Y) ((zsplg_gdsa_t) { (X), (bool(*)(void*))(Y) })
-# define RET_GDSA(X,Y) return ZS_GDSA((X), (Y))
-# define RET_GDSA_NULL RET_GDSA(0, 0)
+# define ZS_GDSA(X,Y,Z) ((zsplg_gdsa_t) { (X), (Y), (bool(*)(void*))(Z) })
+# define ZS_GDSA_NULL ZS_GDSA(0, 0, 0)
+# define RET_GDSA(X,Y,Z) return ZS_GDSA((X), (Y), (Z))
+# define RET_GDSA_NULL return ZS_GDSA_NULL
 #endif
