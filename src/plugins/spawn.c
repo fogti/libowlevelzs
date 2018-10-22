@@ -42,12 +42,12 @@ static zsplg_gdsa_t h_create(void *data, size_t argc, const char *argv[]) {
     free(ret);
     ret = 0;
   }
-  RET_GDSA(ret, _Z10do_destroyP14spawn_handle_t);
+  RET_GDSA(ret, sizeof(spawn_handle_t), _Z10do_destroyP14spawn_handle_t);
 }
 
 zsplugin_t * init_spawn() {
   static zsplugin_t plg = {
-    .data        = ZS_GDSA(0, 0),
+    .data        = ZS_GDSA_NULL,
     .fn_h_create = &h_create,
   };
   return &plg;
@@ -137,10 +137,11 @@ static int zs_do_exech(spawn_handle_t *sph, const bool co) {
   char buf[1024];
   size_t pos = 0;
   while(fgets(buf, sizeof(buf), my_pipe)) {
-    const size_t readlen = strlen(buf), enpos = pos + readlen;
-    if(!zs_caout_tosiz(sph, enpos))      { pclose(my_pipe); return -1; }
+    const size_t readlen = strlen(buf);
+    if(!zs_caout_tosiz(sph, pos + readlen))
+      { pclose(my_pipe); return -1; }
     llzs_strxcpy(sph->cmd + pos, buf, readlen);
-    pos = enpos;
+    pos += readlen;
   }
   const int ret = pclose(my_pipe);
   if(!zs_caout_shtf(sph))                return -1;
@@ -149,8 +150,8 @@ static int zs_do_exech(spawn_handle_t *sph, const bool co) {
 
 static int zs_do_exec(spawn_handle_t *sph, const bool co) {
   const int ret = zs_do_exech(sph, co);
-  if(ret == -1) return ret;
-  return (WIFSIGNALED(ret))
+  if(ret == -1) return -1;
+  return  WIFSIGNALED(ret)
     ? (256 + WTERMSIG(ret))
     :     WEXITSTATUS(ret);
 }
@@ -170,20 +171,20 @@ SPH_FN(ap) {
   for(; argi < argc; ++argi)
     if(!((do_quote ? zs_spap_quote : zs_spap_simple)(sph, argv[argi])))
       RET_GDSA_NULL;
-  RET_GDSA("-", 0);
+  RET_GDSA("-", 2, 0);
 }
 
 SPH_FN(ga) {
-  RET_GDSA(llzs_strxdup(sph->cmd, sph->cln), _Z10do_destroyPv);
+  return llzs_strxdup_gdsa(sph->cmd, sph->cln);
 }
 
 SPH_FN(exec) {
-  const bool co = (argc == 1 && !strcmp(argv[0], "1"));
   int * ret = malloc(sizeof(int));
-  if(zs_likely(ret)) *ret = zs_do_exec(sph, co);
-  RET_GDSA(ret, _Z10do_destroyPv);
+  if(zs_likely(ret))
+    *ret = zs_do_exec(sph, argc == 1 && argv[0][0] == '1' && !argv[0][1]);
+  RET_GDSA(ret, sizeof(int), _Z10do_destroyPv);
 }
 
 SPH_FN(caout) {
-  RET_GDSA(llzs_strxdup(sph->caout, sph->cosiz), _Z10do_destroyPv);
+  return llzs_strxdup_gdsa(sph->caout, sph->cosiz);
 }

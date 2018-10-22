@@ -28,22 +28,18 @@
 
 static zsplg_gdsa_t h_create(void *data, size_t argc, const char *argv[]) {
   if(argc != 2) RET_GDSA_NULL;
-  RET_GDSA(fopen(argv[0], argv[1]), _Z10do_destroyP8_IO_FILE);
+  RET_GDSA(fopen(argv[0], argv[1]), sizeof(FILE), _Z10do_destroyP8_IO_FILE);
 }
 
 zsplugin_t * init_file() {
   static zsplugin_t plg = {
-    .data        = ZS_GDSA(0, 0),
+    .data        = ZS_GDSA_NULL,
     .fn_h_create = &h_create,
   };
   return &plg;
 }
 
-static inline zsplg_gdsa_t pack_ret(char * const ret) {
-  RET_GDSA(ret, ret ? _Z10do_destroyPv : 0);
-}
-
-#define RET_PACK return pack_ret(ret)
+#define RET_PACK(N) RET_GDSA(ret, (N), _Z10do_destroyPv)
 #define FH_FN(N) zsplg_gdsa_t file_h_##N(FILE *fh, const size_t argc, const char *argv[])
 
 FH_FN(getchar) {
@@ -54,20 +50,20 @@ FH_FN(getchar) {
     ret[1] = nxc;
     ret[2] = 0;
   }
-  RET_PACK;
+  RET_PACK(3);
 }
 
 FH_FN(getline) {
   char * ret = 0;
   size_t n = 0;
   getline(&ret, &n, fh);
-  RET_PACK;
+  RET_PACK(n);
 }
 
 FH_FN(is_open) {
   char    *ret = calloc(2, 1);
   if(ret) *ret = '0' + (fh?1:0);
-  RET_PACK;
+  RET_PACK(2);
 }
 
 FH_FN(puts) {
@@ -89,5 +85,5 @@ FH_FN(puts) {
     if(EOF == fputs(tmp, fh))
       ret[0] = 'e';
   }
-  RET_PACK;
+  RET_PACK(2);
 }

@@ -1,7 +1,7 @@
 #define _ZS_PLUGIN__
+#define _GNU_SOURCE
 #include "plg.h"
 #include "string/xcpy.h"
-#define _GNU_SOURCE
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,17 +26,18 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
   }
 
   /* init_fn_name = "init_" + modname + "\0" */
-  char init_fn_name[ret.mnlen + 6];
+  zsplugin_t* (*init_fn)() = 0;
   {
+    char init_fn_name[ret.mnlen + 6];
     char *tmp = init_fn_name;
     llzs_strixcpy(&tmp, "init_", 5);
     llzs_strixcpy(&tmp, modname, ret.mnlen);
+    init_fn = dlsym(ret.dlh, init_fn_name);
   }
 
   /* initialize plugin */
-  zsplugin_t* (*init_fn)() = dlsym(ret.dlh, init_fn_name);
   if(zs_likely(init_fn)) {
-    ret.plugin  = *((*init_fn)());
+    ret.plugin  = *init_fn();
     ret.modname = do_strcpy ? llzs_strxdup(modname, ret.mnlen) : modname;
   } else {
     zsplg_setstdl(&ret, ZSPE_DLOPN);
@@ -57,6 +58,7 @@ bool zsplg_destroy(zsplg_gdsa_t *const gdsa) {
       return false;
     gdsa->destroy = 0;
     gdsa->data = 0;
+    gdsa->len = 0;
   }
   return true;
 }
@@ -66,28 +68,23 @@ bool zsplg_close(zsplg_handle_t *const handle) {
     return false;
 
   zsplg_status st = handle->st;
-  zsplugin_t *const plgptr = &handle->plugin;
-
   if(st == ZSPE_DLOPN)
-    goto cont_nodlopen;
+    return false;
 
+  zsplugin_t *const plgptr = &handle->plugin;
   if(zs_unlikely(!zsplg_destroy(&plgptr->data)))
     st = ZSPE_PLG;
 
-  plgptr->data = ZS_GDSA(0, 0);
-
   /* unload plugin */
-  if(!handle->dlh)
-    goto cont_nodlopen;
-
-  if(zs_likely(!dlclose(handle->dlh))) {
+  if(!handle->dlh) {
+    /* nothing to unload */
+  } else if(zs_likely(!dlclose(handle->dlh))) {
     handle->dlh = 0;
   } else {
     if(st == ZSP_OK) st = ZSPE_DLCLOS;
     handle->error_str = dlerror();
   }
 
- cont_nodlopen:
   if(handle->have_alloc) {
     free((void*)handle->modname);
     handle->modname = 0;

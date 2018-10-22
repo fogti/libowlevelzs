@@ -80,8 +80,6 @@ namespace zsplg {
 }
 }
 #endif
-#define zsplg_h_destroy(BASE,ID) zsplg_destroy(&(ID))
-#define zsplg_free_ret(BASE,RETVAL) zsplg_destroy(&(RETVAL))
 #define zsplg_call(FNDAT) zsplg_call_h((FNDAT), 0)
 #define zsplg_gdsa_get(GDSA) ((GDSA).data)
-#define zsplg_h_call(FNDAT,ID) zsplg_call_h((FNDAT), zsplg_gdsa_get(ID))
+#define zsplg_h_call(FNDAT,ID) zsplg_call_h((FNDAT), (ID).data)
