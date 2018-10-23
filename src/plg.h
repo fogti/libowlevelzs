@@ -12,9 +12,6 @@
 #include "plg4plugins.h"
 #include <stdbool.h>
 #include <stddef.h>
-#ifdef __cplusplus
-# include <memory>
-#endif
 
 typedef enum {
   ZSP_OK, ZSPE_DLOPN, ZSPE_DLCLOS,
@@ -47,37 +44,6 @@ extern "C" {
   zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *base, size_t argc, const char *argv[]);
   zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *fndat, void *h_id);
 #ifdef __cplusplus
-}
-
-namespace llzs {
-namespace zsplg {
-  class gdsa_helper_t {
-   public:
-    typedef bool (*destroyer_t)(void*);
-   private:
-    const destroyer_t _destroyer;
-   public:
-    gdsa_helper_t(const destroyer_t destroyer)
-      : _destroyer(destroyer) { }
-    void operator()(void *const ptr) const noexcept
-      { _destroyer(ptr); }
-  };
-
-  /* zsplg_gdsa2ptr transfer's ownership
-     from gdsa to '@return of zsplg_gdsa2ptr',
-     which should be a smart pointer
-
-     @template_param T = expected underlying data type
-     */
-  template<typename T>
-  auto gdsa2unique_ptr(const zsplg_gdsa_t &gdsa) {
-    return std::unique_ptr<T, gdsa_helper_t>(reinterpret_cast<T*>(gdsa.data), gdsa_helper_t(gdsa.destroy));
-  }
-  template<typename T>
-  auto gdsa2shared_ptr(const zsplg_gdsa_t &gdsa) {
-    return std::shared_ptr<T>(reinterpret_cast<T*>(gdsa.data), gdsa_helper_t(gdsa.destroy));
-  }
-}
 }
 #endif
 #define zsplg_call(FNDAT) zsplg_call_h((FNDAT), 0)
