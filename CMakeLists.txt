@@ -6,9 +6,9 @@ set(INSTALL_LIB_DIR     lib${LIB_SUFFIX}  CACHE PATH "Installation directory for
 set(INSTALL_INCLUDE_DIR include/zs/ll     CACHE PATH "Installation directory for header files")
 set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/LowlevelZS CACHE PATH "Installation directory for CMake module files")
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CheckCSourceCompiles)

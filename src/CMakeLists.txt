@@ -3,7 +3,7 @@ set(CMAKE_CXX_FLAGS "-fno-plt -fno-rtti -fno-exceptions -fno-unwind-tables -rdyn
 
 add_library(lowlevelzs SHARED ctchk.cxx hash.c lowlevel.c MMAPguard.cxx
   dtors4plugins.c plg.c plgmm.cxx plugins/file.c plugins/spawn.c
-  string/csarray.cxx string/replace.cxx string/xcpy.c)
+  string/replace.cxx string/rest.cxx string/xcpy.c)
 
 set_target_properties(lowlevelzs PROPERTIES VERSION "0.0.0" SOVERSION 0 OUTPUT_NAME "owlevelzs")
 target_include_directories(lowlevelzs INTERFACE $<INSTALL_INTERFACE:include/zs>)

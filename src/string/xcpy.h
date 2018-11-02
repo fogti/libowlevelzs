@@ -1,3 +1,7 @@
+/** lowlevelzs string/xcpy.h
+    (C) 2018 Erik Zscheile
+    License: MIT
+ **/
 #pragma once
 #include <stddef.h>
 #include <zs/ll/plg4plugins.h>
