@@ -1,3 +1,7 @@
+/** lowlevelzs string/csarray.hpp
+    (C) 2018 Erik Zscheile
+    License: MIT
+ **/
 #pragma once
 #include <string>
 #include <vector>

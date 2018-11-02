@@ -1,3 +1,7 @@
+/** lowlevelzs string/replace.hpp
+    (C) 2018 Erik Zscheile
+    License: MIT
+ **/
 #pragma once
 #include <stddef.h>
 #ifdef __cplusplus
