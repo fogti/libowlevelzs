@@ -3,11 +3,16 @@
     License: MIT
  **/
 #pragma once
+#include "llzs_config.h"
 #include <stddef.h>
 #ifdef __cplusplus
 # include <string>
 namespace llzs {
   std::string string_replace(std::string subject, const std::string &search, const std::string &replace);
+# ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
+  std::string string_replace(std::string subject, const intern::string_view &search, const intern::string_view &replace);
+  void string_inreplace(std::string &subject, const intern::string_view &search, const intern::string_view &replace);
+# endif
   void string_inreplace(std::string &subject, const std::string &search, const std::string &replace);
   void string_inreplace(std::string &subject, const char * __restrict__ search, const char * __restrict__ replace);
 }

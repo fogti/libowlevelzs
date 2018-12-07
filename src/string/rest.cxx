@@ -14,6 +14,15 @@ namespace llzs {
     _v[v.size()] = 0;
   }
 
+#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
+  CStringArray::CStringArray(const std::vector<intern::string_view> &v)
+    : _v(new const char* [v.size()+1])
+  {
+    for(size_t j = 0; j < v.size(); ++j) _v[j] = v[j].data();
+    _v[v.size()] = 0;
+  }
+#endif
+
   void str_trim(string &s) {
     static const string_view whitespace = "\t\n\v\f\r ";
     string_view tsv(s);
