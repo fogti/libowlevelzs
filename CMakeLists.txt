@@ -19,6 +19,17 @@ check_c_source_compiles(
   "static int __attribute__((pure)) zs_st_pure_func(const int x) { return 2 * x; }\nint main(void) { return zs_st_pure_func(0); }"
   HAVE_ATTRIBUTE)
 
+message(STATUS "Looking for include file string_view")
+
+try_run(LLZS_SV_RUN_RES LLZS_SV_COMP_RES "${PROJECT_BINARY_DIR}/llzs_svt" "${PROJECT_SOURCE_DIR}/test_sv.cxx"
+  CXX_STANDARD 17 COMPILE_OUTPUT_VARIABLE LLZS_SV_COMP_OUT RUN_OUTPUT_VARIABLE LLZS_RES_STRING_VIEW)
+
+if(NOT LLZS_SV_RUN_RES)
+  message(STATUS "Looking for include file string_view - found")
+else()
+  message(STATUS "Looking for include file string_view - not found")
+endif()
+
 configure_file(config.h.in "${PROJECT_BINARY_DIR}/llzs_config.h")
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
 install(FILES "${PROJECT_BINARY_DIR}/llzs_config.h" DESTINATION "${INSTALL_INCLUDE_DIR}")

@@ -20,8 +20,6 @@ namespace llzs {
   }
 
   void MMAPguard::advise(const int adv) const noexcept {
-# ifndef WIN32
     if(zs_likely(valid())) madvise(_addr, _len, adv);
-# endif
   }
 }
