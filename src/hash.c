@@ -2,8 +2,10 @@
     (C) 2018 Erik Zscheile
     License: MIT
  **/
+#include "llzs_config.h"
 #include <stdint.h>
 
+zs_attrib(hot)
 void llzs_hash_combine(uintmax_t *seed, const uintmax_t o) {
   // source of rndst : https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes#comment54810251_27952689
   // rndst := inverse of golden ratio as a ... fixed point fraction
