@@ -3,7 +3,7 @@
     License: MIT
  **/
 #pragma once
-#include "llzs_config.h"
+#include <zs/ll/llzs_config.h>
 #include <string>
 #include <vector>
 namespace llzs {
