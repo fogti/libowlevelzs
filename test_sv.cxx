@@ -31,7 +31,7 @@ int main(void) {
 #endif
 
 #ifdef SV_NSS
-  puts("namespace llzs::intern { using string_view = " SV_NSS "::string_view; }");
+  puts("namespace llzs { namespace intern { using string_view = " SV_NSS "::string_view; } }");
 #endif
   puts("#endif /* C++ */");
 
