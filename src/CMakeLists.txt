@@ -5,6 +5,7 @@ add_library(lowlevelzs SHARED ctchk.cxx hash.c lowlevel.c MMAPguard.cxx
   dtors4plugins.c plg.c plgmm.cxx plugins/file.c plugins/spawn.c
   string/replace.cxx string/rest.cxx string/xcpy.c)
 
+add_dependencies(lowlevelzs llzs_config_ln)
 set_target_properties(lowlevelzs PROPERTIES VERSION "0.0.0" SOVERSION 0 OUTPUT_NAME "owlevelzs")
 target_include_directories(lowlevelzs INTERFACE $<INSTALL_INTERFACE:include/zs>)
 target_link_libraries(lowlevelzs ${CMAKE_DL_LIBS})
