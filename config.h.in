@@ -3,32 +3,35 @@
  * (C) 2018 Erik Zscheile
  */
 #pragma once
-#ifdef zs_likely
-# undef zs_likely
-# undef zs_unlikely
-#endif
-#ifdef zs_attrib
-# undef zs_attrib
-#endif
-#ifndef WIN32
+#ifndef LLZS_CONFIG_H
+# define LLZS_CONFIG_H 1
+# ifdef zs_likely
+#  undef zs_likely
+#  undef zs_unlikely
+# endif
+# ifdef zs_attrib
+#  undef zs_attrib
+# endif
+# ifndef WIN32
 #cmakedefine WIN32
-#endif
-#ifndef HAVE_BUILTIN_EXPECT
+# endif
+# ifndef HAVE_BUILTIN_EXPECT
 #cmakedefine HAVE_BUILTIN_EXPECT
-#endif
-#ifndef HAVE_ATTRIBUTE
+# endif
+# ifndef HAVE_ATTRIBUTE
 #cmakedefine HAVE_ATTRIBUTE
-#endif
-#ifdef HAVE_BUILTIN_EXPECT
-# define zs_likely(x)   __builtin_expect(!!(x), 1)
-# define zs_unlikely(x) __builtin_expect(!!(x), 0)
-#else
-# define zs_likely(x)   (x)
-# define zs_unlikely(x) (x)
-#endif
-#ifdef HAVE_ATTRIBUTE
-# define zs_attrib(x) __attribute__((x))
-#else
-# define zs_attrib(x)
-#endif
+# endif
+# ifdef HAVE_BUILTIN_EXPECT
+#  define zs_likely(x)   __builtin_expect(!!(x), 1)
+#  define zs_unlikely(x) __builtin_expect(!!(x), 0)
+# else
+#  define zs_likely(x)   (x)
+#  define zs_unlikely(x) (x)
+# endif
+# ifdef HAVE_ATTRIBUTE
+#  define zs_attrib(x) __attribute__((x))
+# else
+#  define zs_attrib(x)
+# endif
 @LLZS_RES_STRING_VIEW@
+#endif

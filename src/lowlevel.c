@@ -1,4 +1,4 @@
-#include <llzs_config.h>
+#include "llzs_config.h"
 
 #ifdef WIN32
 /* windows */

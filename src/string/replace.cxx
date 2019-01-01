@@ -1,3 +1,6 @@
+// we include llzs_config here to ensure that we use our current version
+//  and not the previous installed one
+#include "llzs_config.h"
 #include "replace.hpp"
 #include "xcpy.h"
 #include <ctype.h>
@@ -9,7 +12,9 @@
 #define restrict __restrict__
 
 using namespace std;
+#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
 using llzs::intern::string_view;
+#endif
 
 namespace llzs {
   // source: http://stackoverflow.com/questions/4643512/replace-substring-with-another-substring-c
