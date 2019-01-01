@@ -1,3 +1,5 @@
+// see replace.cxx
+#include "llzs_config.h"
 #include "csarray.hpp"
 #include "utils.hpp"
 #include <string_view>

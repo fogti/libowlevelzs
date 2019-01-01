@@ -1,9 +1,9 @@
 #define _ZS_PLUGIN__
+#include "llzs_config.h"
 #include <zs/ll/dtors4plugins.h>
 #include <zs/ll/plg4plugins.h>
 #include <zs/ll/string/replace.hpp>
 #include <zs/ll/string/xcpy.h>
-#include <llzs_config.h>
 
 #include <stdio.h>
 #include <stdlib.h>
