@@ -3,7 +3,8 @@ set(CMAKE_CXX_FLAGS "-fno-plt -fno-rtti -fno-exceptions -fno-unwind-tables -rdyn
 
 add_library(lowlevelzs SHARED ctchk.cxx hash.c lowlevel.c MMAPguard.cxx
   dtors4plugins.c plg.c plgmm.cxx plugins/file.c plugins/spawn.c
-  string/replace.cxx string/rest.cxx string/xcpy.c)
+  string/replace.cxx string/rest.cxx string/xcpy.c
+  fd_io.c file_io.cxx)
 
 add_dependencies(lowlevelzs llzs_config_ln)
 set_target_properties(lowlevelzs PROPERTIES VERSION "0.0.0" SOVERSION 0 OUTPUT_NAME "owlevelzs")
@@ -14,7 +15,7 @@ function(src_compile_flags flag)
   set_property(SOURCE ${ARGN} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
 endfunction()
 
-src_compile_flags("-fexceptions -funwind-tables" string/csarray.cxx string/replace.cxx)
+src_compile_flags("-fexceptions -funwind-tables" string/csarray.cxx string/replace.cxx file_io.cxx)
 
 # === TEST EXECUTABLES === (check if plugin system works)
 add_executable(plgtest-echo test/echo.c)
@@ -27,7 +28,7 @@ target_link_libraries(plgtest-echox lowlevelzs)
 install(TARGETS lowlevelzs DESTINATION "${INSTALL_LIB_DIR}" EXPORT LowlevelZSTargets)
 install(EXPORT LowlevelZSTargets DESTINATION "${INSTALL_CMAKE_DIR}" NAMESPACE LowlevelZS:: COMPONENT dev)
 
-install(FILES cxa_noexcept.h hash.hpp memut.hpp mman.h MMAPguard.hpp zsig.h
+install(FILES cxa_noexcept.h fd_io.h file_io.hpp hash.hpp memut.hpp mman.h MMAPguard.hpp zsig.h
     dtors4plugins.h plg.h plg4plugins.h plgmm.hpp
   DESTINATION "${INSTALL_INCLUDE_DIR}")
 

@@ -7,7 +7,7 @@ static void my_errmsg(const char *msg) {
   exit(1);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, const char *argv[]) {
   zsplg_handle_t plg = zsplg_open(0, "spawn", false);
   if(plg.error_str) {
     zsplg_close(&plg);
@@ -26,20 +26,11 @@ int main(int argc, char *argv[]) {
     return handle.exec
    */
   {
-    zsplg_fncall_t hfna = {
-      .plgh = &plg,
-      .fn   = "ap",
-      .argc = argc - 1,
-      .argv = argv + 1
-    };
-    got_ret = zsplg_h_call(&hfna, handle);
+    got_ret = zsplg_h_call(&plg, handle, "ap", argc - 1, argv + 1);
     if(!zsplg_gdsa_get(got_ret)) my_errmsg("spawn.ap failed");
     zsplg_destroy(&got_ret);
-    hfna.fn = "exec";
-    hfna.argc = 0;
     my_argv[0] = 0;
-    hfna.argv = my_argv;
-    got_ret = zsplg_h_call(&hfna, handle);
+    got_ret = zsplg_h_call(&plg, handle, "exec", 0, my_argv);
     if(!zsplg_gdsa_get(got_ret)) my_errmsg("spawn.exec failed");
     retcode = *((int*)zsplg_gdsa_get(got_ret));
     zsplg_destroy(&got_ret);

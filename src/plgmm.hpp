@@ -46,9 +46,12 @@ namespace zsplg {
     plugin(const char * __restrict__ file, const char * __restrict__ modname, bool do_strcpy);
     plugin(const plugin &o) = delete;
     ~plugin();
-    auto get() -> zsplg_handle_t*;
-    zsplg_status status() const noexcept;
-    auto error_str() const noexcept -> const char *;
+    auto get() noexcept -> zsplg_handle_t*
+      { return &_plg; }
+    zsplg_status status() const noexcept
+      { return _plg.st; }
+    auto error_str() const noexcept -> const char *
+      { return _plg.error_str; }
     gdsa call_argv(const char * __restrict__ fn, size_t argc, const char *argv[]);
   };
 

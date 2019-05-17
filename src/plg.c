@@ -51,16 +51,14 @@ zsplg_handle_t zsplg_open(const char * restrict file, const char * restrict modn
 }
 
 bool zsplg_destroy(zsplg_gdsa_t *const gdsa) {
-  if(zs_unlikely(!gdsa))
-    return false;
-  if(gdsa->destroy) {
-    if(zs_unlikely(!gdsa->destroy(gdsa->data)))
-      return false;
+  // gdsa->destroy != 0 --> successful
+  const bool ret = gdsa && (!gdsa->destroy || gdsa->destroy(gdsa->data));
+  if(ret) {
     gdsa->destroy = 0;
     gdsa->data = 0;
     gdsa->len = 0;
   }
-  return true;
+  return ret;
 }
 
 bool zsplg_close(zsplg_handle_t *const handle) {
@@ -106,14 +104,8 @@ static void zsplg_upd_errstr(zsplg_handle_t *const handle, const zsplg_status st
 }
 
 zs_attrib(hot)
-zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
+zsplg_gdsa_t zsplg_call_h(zsplg_handle_t *const handle, void *const h_id, const char *fn, size_t argc, const char *argv[]) {
   /* handle error conditions */
-  if(zs_unlikely(!fndat))
-    RET_GDSA_NULL;
-
-  zsplg_handle_t *const handle = fndat->plgh;
-  const char     *const fn     = fndat->fn;
-
   if(zs_unlikely(!handle || !fn || handle->st == ZSPE_DLOPN))
     RET_GDSA_NULL;
 
@@ -141,5 +133,5 @@ zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *const fndat, void *const h_id) {
   }
 
   /* call function */
-  return xfn_ptr(h_id ? h_id : handle->plugin.data.data, fndat->argc, fndat->argv);
+  return xfn_ptr(h_id ? h_id : handle->plugin.data.data, argc, argv);
 }

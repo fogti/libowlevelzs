@@ -36,21 +36,8 @@ plugin::plugin(const char * __restrict__ file, const char * __restrict__ modname
 plugin::~plugin()
   { zsplg_close(&_plg); }
 
-auto plugin::get() -> zsplg_handle_t*
-  { return &_plg; }
-zsplg_status plugin::status() const noexcept
-  { return _plg.st; }
-auto plugin::error_str() const noexcept -> const char *
-  { return _plg.error_str; }
-
 gdsa plugin::call_argv(const char * __restrict__ fn, size_t argc, const char *argv[]) {
-  zsplg_fncall_t hfna = {
-    .plgh = &_plg,
-    .fn   = fn,
-    .argc = argc,
-    .argv = argv
-  };
-  return zsplg_call_h(&hfna, 0);
+  return zsplg_call_h(&_plg, 0, fn, argc, argv);
 }
 
 handle::handle(plugin &plg, size_t argc, const char *argv[])
@@ -65,13 +52,7 @@ handle::handle(plugin &plg, const char *sub)
 }
 
 gdsa handle::call_argv(const char * __restrict__ fn, size_t argc, const char *argv[]) {
-  zsplg_fncall_t hfna = {
-    .plgh = _plg.get(),
-    .fn   = fn,
-    .argc = argc,
-    .argv = argv
-  };
-  return zsplg_call_h(&hfna, _hdl.get());
+  return zsplg_call_h(_plg.get(), _hdl.get(), fn, argc, argv);
 }
 
 }

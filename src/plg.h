@@ -27,13 +27,6 @@ typedef struct {
   bool have_alloc;
 } zsplg_handle_t;
 
-typedef struct {
-  zsplg_handle_t *plgh;
-  const char *fn;
-  size_t argc;
-  const char *const *argv;
-} zsplg_fncall_t;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -42,10 +35,9 @@ extern "C" {
   bool zsplg_destroy(zsplg_gdsa_t *gdsa);
 
   zsplg_gdsa_t zsplg_h_create(const zsplg_handle_t *base, size_t argc, const char *argv[]);
-  zsplg_gdsa_t zsplg_call_h(const zsplg_fncall_t *fndat, void *h_id);
+  zsplg_gdsa_t zsplg_call_h(zsplg_handle_t *const base, void *const h_id, const char *fn, size_t argc, const char *argv[]);
 #ifdef __cplusplus
 }
 #endif
-#define zsplg_call(FNDAT) zsplg_call_h((FNDAT), 0)
 #define zsplg_gdsa_get(GDSA) ((GDSA).data)
-#define zsplg_h_call(FNDAT,ID) zsplg_call_h((FNDAT), (ID).data)
+#define zsplg_h_call(BASE,HANDLE,FN,ARGC,ARGV) zsplg_call_h(BASE, (HANDLE).data, FN, ARGC, ARGV)
