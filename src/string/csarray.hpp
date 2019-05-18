@@ -12,9 +12,7 @@ namespace llzs {
    public:
     explicit CStringArray(const std::vector<std::string> &);
     explicit CStringArray(const std::vector<std::string> &&) = delete;
-#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
     explicit CStringArray(const std::vector<intern::string_view> &);
-#endif
     ~CStringArray() noexcept { delete[] _v; }
     char ** data()  const    { return const_cast<char **>(_v); }
   };

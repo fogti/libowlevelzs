@@ -27,7 +27,7 @@ try_run(LLZS_SV_RUN_RES LLZS_SV_COMP_RES "${PROJECT_BINARY_DIR}/llzs_svt" "${PRO
 if(NOT LLZS_SV_RUN_RES)
   message(STATUS "Looking for include file string_view - found")
 else()
-  message(STATUS "Looking for include file string_view - not found")
+  message(FATAL_ERROR "Looking for include file string_view - not found - this is unsupported")
 endif()
 
 configure_file(config.h.in "${PROJECT_BINARY_DIR}/llzs_config.h")

@@ -1,6 +1,3 @@
-// we include llzs_config here to ensure that we use our current version
-//  and not the previous installed one
-#include "llzs_config.h"
 #include "replace.hpp"
 #include "xcpy.h"
 #include <ctype.h>
@@ -12,13 +9,10 @@
 #define restrict __restrict__
 
 using namespace std;
-#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
 using llzs::intern::string_view;
-#endif
 
 namespace llzs {
   // source: http://stackoverflow.com/questions/4643512/replace-substring-with-another-substring-c
-#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
   void string_inreplace(string &subject, const string_view &search, const string_view &replace) {
     size_t pos = 0;
     while((pos = subject.find(search, pos)) != string::npos) {
@@ -30,31 +24,12 @@ namespace llzs {
     string_inreplace(subject, search, replace);
     return subject;
   }
-#endif
 
   void string_inreplace(string &subject, const string& search, const string& replace) {
-#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
     string_inreplace(subject, string_view(search), string_view(replace));
-#else
-    const size_t sln = search.size(), rln = replace.size();
-    size_t pos = 0;
-    while((pos = subject.find(search, pos)) != string::npos) {
-      subject.replace(pos, sln, replace);
-      pos += rln;
-    }
-#endif
   }
   void string_inreplace(string &subject, const char * restrict search, const char * restrict replace) {
-#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
     string_inreplace(subject, string_view(search), string_view(replace));
-#else
-    const size_t sln = strlen(search), rln = strlen(replace);
-    size_t pos = 0;
-    while((pos = subject.find(search, pos, sln)) != string::npos) {
-      subject.replace(pos, sln, replace, rln);
-      pos += rln;
-    }
-#endif
   }
   string string_replace(string subject, const string& search, const string& replace) {
     string_inreplace(subject, search, replace);

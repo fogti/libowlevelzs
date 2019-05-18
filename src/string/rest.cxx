@@ -1,12 +1,11 @@
-// see replace.cxx
-#include "llzs_config.h"
 #include "csarray.hpp"
 #include "utils.hpp"
-#include <string_view>
 #include <algorithm>
+#include <iostream>
+#include <sstream>
 
 using std::string;
-using std::string_view;
+using std::vector;
 
 namespace llzs {
   CStringArray::CStringArray(const std::vector<std::string> &v)
@@ -16,21 +15,37 @@ namespace llzs {
     _v[v.size()] = 0;
   }
 
-#ifdef LIBOWLEVELZS_SUPPORT_STRING_VIEW
   CStringArray::CStringArray(const std::vector<intern::string_view> &v)
     : _v(new const char* [v.size()+1])
   {
     for(size_t j = 0; j < v.size(); ++j) _v[j] = v[j].data();
     _v[v.size()] = 0;
   }
-#endif
 
   void str_trim(string &s) {
-    static const string_view whitespace = "\t\n\v\f\r ";
-    string_view tsv(s);
-    const size_t tmp = tsv.find_last_not_of(whitespace);
-    if(tmp != string::npos) tsv.remove_suffix(tsv.size() - tmp - 1);
-    tsv.remove_prefix(std::min(tsv.find_first_not_of(whitespace), tsv.size()));
-    if(tsv.size() != s.size()) s = string(tsv);
+    static const intern::string_view whitespace = "\t\n\v\f\r ";
+    intern::string_view ts = s;
+    const size_t tmp = ts.find_last_not_of(whitespace);
+    if(tmp != string::npos) ts.remove_suffix(ts.size() - tmp - 1);
+    ts.remove_prefix(std::min(ts.find_first_not_of(whitespace), ts.size()));
+    if(ts.size() != s.size()) s = string(ts);
+  }
+
+  auto str_split(const string &s) -> vector<string> {
+    vector<string> parts;
+    std::istringstream ss(s);
+    string tok;
+    while((ss >> tok))
+      parts.emplace_back(std::move(tok));
+    return parts;
+  }
+
+  auto str_split(const string &s, const char delim) -> vector<string> {
+    vector<string> parts;
+    std::istringstream ss(s);
+    string tok;
+    while(getline(ss, tok, delim))
+      parts.emplace_back(std::move(tok));
+    return parts;
   }
 }
