@@ -40,8 +40,18 @@ void string_accu::append(string x) {
     [&xh](const decltype(_own_buf)::value_type &y) { return xh == y.second; });
 
   // insert the element into the _own_buf, if it isn't there already
-  const auto insr = (it != ie) ? (*it) : (_own_buf.emplace_back(std::move(x), xh));
-  _sv_buf.emplace_back(insr.first);
+  if(it != ie) {
+    _sv_buf.emplace_back(it->first);
+  } else {
+    const auto insr = _own_buf.emplace_back(std::move(x), xh);
+    try {
+      _sv_buf.emplace_back(insr.first);
+    } catch(...) {
+      _own_buf.pop_back();
+      _sv_buf.shrink_to_fit();
+      throw;
+    }
+  }
 }
 
 void string_accu::append_ref(const intern::string_view &x) {
@@ -57,6 +67,14 @@ void string_accu::append_ref(const intern::string_view &x) {
   }
 
   _sv_buf.emplace_back(x);
+}
+
+void string_accu::shrink_to_fit() noexcept {
+  _sv_buf.shrink_to_fit();
+  if(_sv_buf.empty())
+    _own_buf.clear();
+  if(_own_buf.empty()) // only shrink own_buf if no string can reference it
+    _own_buf.shrink_to_fit();
 }
 
 }

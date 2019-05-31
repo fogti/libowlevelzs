@@ -34,15 +34,11 @@ namespace llzs {
 
     // NOTE: the return value of pop_back() is invalidated after clear() is called
     auto pop_back() -> intern::string_view;
+    void shrink_to_fit() noexcept;
 
     void clear() noexcept {
       _sv_buf.clear();
       _own_buf.clear();
-    }
-
-    void shrink_to_fit() noexcept {
-      _sv_buf.shrink_to_fit();
-      _own_buf.shrink_to_fit();
     }
   };
 }

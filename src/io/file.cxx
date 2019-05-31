@@ -1,8 +1,8 @@
-/** lowlevelzs file_io.cxx
+/** lowlevelzs io/file.cxx
     (C) 2019 Erik Zscheile
     License: MIT
  **/
-#include "file_io.hpp"
+#include "file.hpp"
 #include <stdio.h>
 
 using std::string;
