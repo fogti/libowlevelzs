@@ -12,7 +12,7 @@
 
 namespace llzs {
   // a string accumulator class
-  class string_accu {
+  class string_accu final {
     std::vector<intern::string_view>
       _sv_buf;
     std::deque<std::pair<std::string, size_t>>
@@ -21,6 +21,9 @@ namespace llzs {
    public:
     auto size() const noexcept -> size_t;
     auto to_string(size_t prealloc = 0) const -> std::string;
+
+    void reserve(size_t n)
+      { _sv_buf.reserve(n); }
 
     void append(const char x);
     void append(std::string x);
