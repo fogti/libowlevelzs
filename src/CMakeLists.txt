@@ -1,7 +1,7 @@
 set(CMAKE_C_FLAGS "-fno-plt -fno-exceptions -fno-unwind-tables -rdynamic")
 set(CMAKE_CXX_FLAGS "-fno-plt -fno-rtti -fno-exceptions -fno-unwind-tables -rdynamic")
 
-add_library(lowlevelzs SHARED ctchk.cxx hash.c lowlevel.c MMAPguard.cxx
+add_library(lowlevelzs SHARED MMAPguard.cxx ctchk.cxx hash.c lowlevel.c random.cxx
   dtors4plugins.c plg.c plgmm.cxx plugins/file.c plugins/spawn.c
   string/accu.cxx string/replace.cxx string/rest.cxx string/xcpy.c
   io/fd.c io/file.cxx)
@@ -30,7 +30,7 @@ target_link_libraries(plgtest-echox lowlevelzs)
 install(TARGETS lowlevelzs DESTINATION "${INSTALL_LIB_DIR}" EXPORT LowlevelZSTargets)
 install(EXPORT LowlevelZSTargets DESTINATION "${INSTALL_CMAKE_DIR}" NAMESPACE LowlevelZS:: COMPONENT dev)
 
-install(FILES cxa_noexcept.h hash.hpp memut.hpp mman.h MMAPguard.hpp zsig.h
+install(FILES MMAPguard.hpp cxa_noexcept.h hash.hpp memut.hpp mman.h random.hpp reverse.hpp zsig.h
     dtors4plugins.h plg.h plg4plugins.h plgmm.hpp
   DESTINATION "${INSTALL_INCLUDE_DIR}")
 
