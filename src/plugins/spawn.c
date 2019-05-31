@@ -134,6 +134,7 @@ static int zs_do_exech(spawn_handle_t *sph, const bool co) {
   FILE *my_pipe = popen(sph->cmd, "r");
   if(!my_pipe)                           return -1;
 
+  // FIXME: this part sometimes fails with SIGSEGV or SIGABRT or SIGPIPE
   char buf[1024];
   size_t pos = 0;
   while(fgets(buf, sizeof(buf), my_pipe)) {

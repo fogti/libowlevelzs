@@ -33,7 +33,7 @@ int main(void) {
 #ifdef SV_NSS
   puts("namespace llzs { namespace intern { using string_view = " SV_NSS "::string_view; } }");
 #endif
-  puts("#endif /* C++ */");
+  printf("#endif /* C++ */");
 
   return 0;
 }

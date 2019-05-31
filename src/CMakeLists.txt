@@ -3,7 +3,7 @@ set(CMAKE_CXX_FLAGS "-fno-plt -fno-rtti -fno-exceptions -fno-unwind-tables -rdyn
 
 add_library(lowlevelzs SHARED ctchk.cxx hash.c lowlevel.c MMAPguard.cxx
   dtors4plugins.c plg.c plgmm.cxx plugins/file.c plugins/spawn.c
-  string/replace.cxx string/rest.cxx string/xcpy.c
+  string/accu.cxx string/replace.cxx string/rest.cxx string/xcpy.c
   fd_io.c file_io.cxx)
 
 add_dependencies(lowlevelzs llzs_config_ln)
