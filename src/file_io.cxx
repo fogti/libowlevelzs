@@ -16,16 +16,19 @@ bool read_file2buffer(const string &file, string &content) noexcept {
   if(!fh) return false;
 
   char buf[1024];
+  bool ret = true;
 
   try {
     while(const size_t cnt = fread(buf, 1, sizeof(buf) - 1, fh))
       content.append(buf, cnt);
   } catch(...) {
     content.clear();
+    content.shrink_to_fit();
+    ret = false;
   }
   fclose(fh);
 
-  return !content.empty();
+  return ret;
 }
 
 }
