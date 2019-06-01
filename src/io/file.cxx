@@ -23,11 +23,11 @@ bool read_file2buffer(const string &file, string &content) noexcept {
       content.append(buf, cnt);
   } catch(...) {
     content.clear();
-    content.shrink_to_fit();
     ret = false;
   }
-  fclose(fh);
 
+  fclose(fh);
+  content.shrink_to_fit();
   return ret;
 }
 
