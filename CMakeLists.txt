@@ -31,9 +31,8 @@ else()
 endif()
 
 configure_file(config.h.in "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h")
-include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/zs/ll")
 install(FILES "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h" DESTINATION "${INSTALL_INCLUDE_DIR}")
-file(COPY "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h" DESTINATION "${PROJECT_BINARY_DIR}")
 
 add_subdirectory(cmake)
 add_subdirectory(src)
