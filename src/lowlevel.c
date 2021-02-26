@@ -2,7 +2,7 @@
 
 #ifdef WIN32
 /* windows */
-# include "win32_mman.c"
+# include "cond/win32_mman.c"
 #endif
 
 #include "zsig.h"

@@ -7,11 +7,11 @@
 #include <stdint.h>
 // source: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3876.pdf
 
+extern "C" void llzs_hash_combine(uintmax_t *seed, uintmax_t o) noexcept;
+
 namespace llzs {
   // needed for hash_val()
   static inline void hash_combine(const std::uintmax_t seed) {}
-
-  extern "C" void llzs_hash_combine(uintmax_t *seed, uintmax_t o) noexcept;
 
   template<class T>
   static inline void hash_combine(uintmax_t& seed, const T& v) {
