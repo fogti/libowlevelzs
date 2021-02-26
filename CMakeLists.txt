@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.7)
 cmake_policy(SET CMP0048 NEW)
 project(libowlevelzs)
 
-set(INSTALL_LIB_DIR     lib${LIB_SUFFIX}  CACHE PATH "Installation directory for libraries")
-set(INSTALL_INCLUDE_DIR include/zs/ll     CACHE PATH "Installation directory for header files")
-set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/LowlevelZS CACHE PATH "Installation directory for CMake module files")
+include(GNUInstallDirs)
+
+set(ZSINST_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/zs/ll CACHE PATH "Installation directory for header files")
+set(ZSINST_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/LowlevelZS CACHE PATH "Installation directory for CMake module files")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -32,7 +33,7 @@ endif()
 
 configure_file(config.h.in "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h")
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}" "${PROJECT_BINARY_DIR}/zs/ll")
-install(FILES "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h" DESTINATION "${INSTALL_INCLUDE_DIR}")
+install(FILES "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h" DESTINATION "${ZSINST_INCLUDE_DIR}")
 
 add_subdirectory(cmake)
 add_subdirectory(src)

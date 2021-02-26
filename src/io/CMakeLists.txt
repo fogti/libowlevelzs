@@ -1,2 +1,2 @@
 install(FILES fd.h file.hpp
-  DESTINATION "${INSTALL_INCLUDE_DIR}/io")
+  DESTINATION "${ZSINST_INCLUDE_DIR}/io")

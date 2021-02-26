@@ -23,13 +23,13 @@ src_compile_flags("-fexceptions -funwind-tables"
 )
 
 # === INSTALL SECTION ===
-install(TARGETS lowlevelzs DESTINATION "${INSTALL_LIB_DIR}" EXPORT LowlevelZSTargets)
-install(EXPORT LowlevelZSTargets DESTINATION "${INSTALL_CMAKE_DIR}" NAMESPACE LowlevelZS:: COMPONENT dev)
+install(TARGETS lowlevelzs DESTINATION "${CMAKE_INSTALL_LIBDIR}" EXPORT LowlevelZSTargets)
+install(EXPORT LowlevelZSTargets DESTINATION "${ZSINST_CMAKE_DIR}" NAMESPACE LowlevelZS:: COMPONENT dev)
 
 install(FILES
   cxa_noexcept.h escape.h hash.hpp hexcode.h memut.hpp mman.h
   MMAPguard.hpp Parser.hpp random.hpp reverse.hpp zsig.h
-  DESTINATION "${INSTALL_INCLUDE_DIR}")
+  DESTINATION "${ZSINST_INCLUDE_DIR}")
 
 add_subdirectory(io)
 add_subdirectory(lexer)
