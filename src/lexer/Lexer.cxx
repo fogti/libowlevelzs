@@ -174,7 +174,7 @@ namespace llzs {
   }
 
   void Lexer::print_locmsg(const std::map<uint32_t, uint16_t> &colors, const LexerToken &token, const std::string &msg) const {
-    fprintf(stderr, "%s: line %zu: %s\n% 6zu │ ", _filename, token.line, msg.c_str(), token.line);
+    fprintf(stderr, "%s: line %zu: %s\n%6zu │ ", _filename, token.line, msg.c_str(), token.line);
 
     const auto lslc = get_line(token.line);
     if(lslc.size() > token.col) {
