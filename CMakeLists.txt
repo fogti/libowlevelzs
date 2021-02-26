@@ -30,11 +30,10 @@ else()
   message(FATAL_ERROR "Looking for include file string_view - not found - this is unsupported")
 endif()
 
-configure_file(config.h.in "${PROJECT_BINARY_DIR}/llzs_config.h")
+configure_file(config.h.in "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h")
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
-install(FILES "${PROJECT_BINARY_DIR}/llzs_config.h" DESTINATION "${INSTALL_INCLUDE_DIR}")
-
-add_custom_target(llzs_config_ln ALL COMMAND "${PROJECT_SOURCE_DIR}/config_relink.sh" "${CMAKE_COMMAND}" "${PROJECT_BINARY_DIR}" llzs_config.h)
+install(FILES "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h" DESTINATION "${INSTALL_INCLUDE_DIR}")
+file(COPY "${PROJECT_BINARY_DIR}/zs/ll/llzs_config.h" DESTINATION "${PROJECT_BINARY_DIR}")
 
 add_subdirectory(cmake)
 add_subdirectory(src)
