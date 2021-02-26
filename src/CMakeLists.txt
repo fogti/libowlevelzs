@@ -8,7 +8,7 @@ add_library(lowlevelzs SHARED
   string/replace.cxx string/rest.cxx string/split.cxx string/xcpy.c
 )
 
-set_target_properties(lowlevelzs PROPERTIES VERSION "0.0.0" SOVERSION 0 OUTPUT_NAME "owlevelzs")
+set_target_properties(lowlevelzs PROPERTIES VERSION "1.0.0" SOVERSION 1 OUTPUT_NAME "owlevelzs")
 target_compile_options(lowlevelzs PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
 target_include_directories(lowlevelzs INTERFACE $<INSTALL_INTERFACE:include/zs>)
 target_link_libraries(lowlevelzs ${CMAKE_DL_LIBS})
