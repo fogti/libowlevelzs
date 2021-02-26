@@ -1,5 +1,5 @@
 /** lowlevelzs hash.hpp
-    (C) 2018 Erik Zscheile
+    (C) 2021 Erik Zscheile
     License: MIT
  **/
 #pragma once
@@ -11,7 +11,7 @@ extern "C" void llzs_hash_combine(uintmax_t *seed, uintmax_t o) noexcept;
 
 namespace llzs {
   // needed for hash_val()
-  static inline void hash_combine(const std::uintmax_t seed) {}
+  static inline void hash_combine(const uintmax_t seed) {}
 
   template<class T>
   static inline void hash_combine(uintmax_t& seed, const T& v) {
@@ -19,7 +19,7 @@ namespace llzs {
   }
 
   template<typename T, typename... Types>
-  void hash_combine(std::uintmax_t& seed, const T& val, const Types&... args) {
+  void hash_combine(uintmax_t& seed, const T& val, const Types&... args) {
     hash_combine<T>(seed, val);
     hash_combine(seed, args...);
   }
