@@ -1,6 +1,4 @@
-#define _ZS_PLUGIN__
 #include "xcpy.h"
-#include <zs/ll/dtors4plugins.h>
 #include <stdlib.h>      /* malloc */
 #include <string.h>      /* memcpy */
 #include <llzs_config.h>
@@ -25,8 +23,4 @@ char * llzs_strxdup(const char * str, size_t n) {
     ret[n] = 0;
   }
   return ret;
-}
-
-zsplg_gdsa_t llzs_strxdup_gdsa(const char * str, size_t n) noexcept {
-  RET_GDSA(llzs_strxdup(str, n), n + 1, _Z10do_destroyPv);
 }
