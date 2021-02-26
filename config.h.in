@@ -33,5 +33,4 @@
 # else
 #  define zs_attrib(x)
 # endif
-@LLZS_RES_STRING_VIEW@
 #endif

@@ -3,8 +3,8 @@
     License: MIT
  **/
 #pragma once
-#include <zs/ll/llzs_config.h>
 #include <string>
+#include <string_view>
 #include <vector>
 namespace llzs {
   class CStringArray {
@@ -12,7 +12,7 @@ namespace llzs {
    public:
     explicit CStringArray(const std::vector<std::string> &);
     explicit CStringArray(const std::vector<std::string> &&) = delete;
-    explicit CStringArray(const std::vector<intern::string_view> &);
+    explicit CStringArray(const std::vector<std::string_view> &);
     ~CStringArray() noexcept { delete[] _v; }
     char ** data()  const    { return const_cast<char **>(_v); }
   };

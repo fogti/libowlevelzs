@@ -1,15 +1,11 @@
+#include <llzs_config.h>
 #include "replace.hpp"
 #include "xcpy.h"
-#include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <algorithm>
 
 #define restrict __restrict__
 
 using namespace std;
-using llzs::intern::string_view;
 
 namespace llzs {
   // source: http://stackoverflow.com/questions/4643512/replace-substring-with-another-substring-c
