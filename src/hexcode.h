@@ -5,7 +5,7 @@
 #pragma once
 #include <inttypes.h>
 #include <stdbool.h>
-#include <zs/ll/cxa_noexcept.h>
+#include "cxa_noexcept.h"
 
 #ifdef __cplusplus
 extern "C" {

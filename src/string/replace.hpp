@@ -18,7 +18,7 @@ namespace llzs {
 extern "C" {
 #else
 # include <stdbool.h>
-# include <zs/ll/cxa_noexcept.h>
+# include "../cxa_noexcept.h"
 #endif
   bool llzs_stinreplace(char ** __restrict__ stval, const char * __restrict__ search, const char * __restrict__ replace) noexcept;
   char* llzs_streplace(const char * __restrict__ stval, const char * __restrict__ search,

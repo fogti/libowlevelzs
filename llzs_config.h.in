@@ -13,13 +13,13 @@
 #  undef zs_attrib
 # endif
 # ifndef WIN32
-#cmakedefine WIN32
+#mesondefine WIN32
 # endif
 # ifndef HAVE_BUILTIN_EXPECT
-#cmakedefine HAVE_BUILTIN_EXPECT
+#mesondefine HAVE_BUILTIN_EXPECT
 # endif
 # ifndef HAVE_ATTRIBUTE
-#cmakedefine HAVE_ATTRIBUTE
+#mesondefine HAVE_ATTRIBUTE
 # endif
 # ifdef HAVE_BUILTIN_EXPECT
 #  define zs_likely(x)   __builtin_expect(!!(x), 1)
