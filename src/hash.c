@@ -1,7 +1,3 @@
-/** llzs hash.c
-    (C) 2018 Erik Zscheile
-    License: MIT
- **/
 #include "llzs_config.h"
 #include <stdint.h>
 

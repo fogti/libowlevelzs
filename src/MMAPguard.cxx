@@ -1,7 +1,3 @@
-/** lowlevelzs MMAPguard.cxx
-    (C) 2018 Erik Zscheile
-    License: MIT
- **/
 #include "mman.h"
 #include "MMAPguard.hpp"
 

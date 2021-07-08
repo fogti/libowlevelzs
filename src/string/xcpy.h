@@ -1,6 +1,6 @@
 /** lowlevelzs string/xcpy.h
-    (C) 2018 Erik Zscheile
-    License: MIT
+    (C) 2018 - 2021 Alain Zscheile
+    SPDX-License-Identifier: ISC
  **/
 #pragma once
 #include <stddef.h>

@@ -1,10 +1,3 @@
-#include "llzs_config.h"
-
-#ifdef WIN32
-/* windows */
-# include "cond/win32_mman.c"
-#endif
-
 #include "zsig.h"
 #include <signal.h>
 zs_attrib(cold)

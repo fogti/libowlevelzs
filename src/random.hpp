@@ -1,6 +1,6 @@
 /** lowlevelzs random.hpp
-    (C) 2019 Erik Zscheile
-    License: MIT
+    (C) 2019 - 2021 Alain Zscheile
+    SPDX-License-Identifier: ISC
  **/
 #pragma once
 #include <string>

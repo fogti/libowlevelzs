@@ -1,6 +1,6 @@
 /**
- * llzs_config.h build time configuration for libowlevelZS
- * (C) 2018 Erik Zscheile
+ * llzs_config.h build time configuration for -lowlevelzs
+ * (C) 2018 - 2021 Alain Zscheile
  */
 #pragma once
 #ifndef LLZS_CONFIG_H

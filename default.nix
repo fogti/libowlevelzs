@@ -13,8 +13,7 @@ stdenv.mkDerivation {
   meta = with lib; {
     description = "Zscheile Lowlevel (utility) library";
     homepage = "https://github.com/zseri/libowlevelzs";
-    license = licenses.mit;
-    maintainers = with maintainers; [ zseri ];
+    license = licenses.isc;
     platforms = platforms.all;
   };
 }

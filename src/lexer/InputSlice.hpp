@@ -1,6 +1,6 @@
 /** lowlevelzs lexer/InputSlice.hpp
-    (C) 2021 Erik Zscheile
-    License: MIT
+    (C) 2021 Alain Zscheile
+    SPDX-License-Identifier: ISC
  **/
 #pragma once
 #include "LexPos.hpp"

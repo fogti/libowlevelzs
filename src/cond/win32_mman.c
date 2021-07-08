@@ -1,4 +1,4 @@
-// mman.c - win32 mmap implementation
+// win32_mman.c - win32 mmap implementation
 #include <windows.h>
 #include <errno.h>
 #include <io.h>
