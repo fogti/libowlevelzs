@@ -1,0 +1,25 @@
+# - Try to find LowlevelZS
+# Once done, this will define
+#
+#  LowlevelZS_FOUND - system has LowlevelZS
+#  LowlevelZS_INCLUDE_DIRS - the LowlevelZS include directories
+#  LowlevelZS_LIBRARIES - link these to use LowlevelZS
+#
+# and export the target LowlevelZS::lowlevelzs
+
+@PACKAGE_INIT@
+
+set_and_check(LowlevelZS_INCLUDE_DIR "@include_path@")
+set_and_check(LowlevelZS_LIBRARY "@library_path@")
+set(LowlevelZS_INCLUDE_DIRS "${LowlevelZS_INCLUDE_DIR}")
+set(LowlevelZS_LIBRARIES "${LowlevelZS_LIBRARY}")
+set(LowlevelZS_FOUND ON)
+
+add_library(LowlevelZS::lowlevelzs SHARED IMPORTED)
+set_target_properties(LowlevelZS::lowlevelzs PROPERTIES
+  IMPORTED_LOCATION_RELEASE "${LowlevelZS_LIBRARY}"
+  INTERFACE_INCLUDE_DIRECTORIES "${LowlevelZS_INCLUDE_DIR}/zs"
+)
+
+unset(LowlevelZS_INCLUDE_DIR)
+unset(LowlevelZS_LIBRARY)
