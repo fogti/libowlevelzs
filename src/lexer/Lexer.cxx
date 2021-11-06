@@ -30,7 +30,7 @@ namespace llzs {
     while(!eof() && cmtlvl) {
       const char curc = *_pos;
       incr();
-      switch(*_pos) {
+      switch(curc) {
         case '/':
           if(!eof() && *_pos == '*') {
             // recursive cmt
