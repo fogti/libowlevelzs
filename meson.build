@@ -33,6 +33,9 @@ int main(void) { return zs_st_pure_func(0); }
 subdir('src')
 
 pkg_mod = import('pkgconfig')
+cmake = import('cmake')
+fs = import('fs')
+
 pkg_mod.generate(
   libraries   : [libowlevelzs],
   version     : meson.project_version(),
@@ -41,12 +44,11 @@ pkg_mod.generate(
   description : 'Zscheile Lowlevel (utility) library')
 
 # backwards compatibility
-cmake = import('cmake')
 cmake.configure_package_config_file(
   name        : 'LowlevelZS',
   input       : 'LowlevelZSConfig.cmake.in',
   install_dir : install_library_middir + '/cmake/LowlevelZS',
   configuration : configuration_data({
     'include_path' : '${PACKAGE_PREFIX_DIR}/' + install_include_middir,
-    'library_path' : '${PACKAGE_PREFIX_DIR}/' + install_library_middir + '/' + libowlevelzs.name(),
+    'library_path' : '${PACKAGE_PREFIX_DIR}/' + install_library_middir + '/' + fs.name(libowlevelzs.full_path()),
   }))

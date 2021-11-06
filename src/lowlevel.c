@@ -69,7 +69,6 @@ bool llzs_write_char(const int fd, const char x) noexcept {
   }
 }
 
-
 void llzs_strixcpy(char * restrict * restrict dstp, const char * restrict src, size_t n) {
   /* assert(strlen(src) == n && sizeof(dest) >= (n + 1)); */
   memcpy(*dstp, src, n);
