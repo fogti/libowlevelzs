@@ -3,6 +3,7 @@
     SPDX-License-Identifier: ISC
  **/
 #pragma once
+#include <stddef.h>
 #include <string>
 namespace llzs {
   // pre-condition: srand() was called since start of program

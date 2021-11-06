@@ -43,7 +43,7 @@ pkg_mod.generate(
 # backwards compatibility
 cmake = import('cmake')
 cmake.configure_package_config_file(
-  name        : 'LowlevelZSConfig',
+  name        : 'LowlevelZS',
   input       : 'LowlevelZSConfig.cmake.in',
   install_dir : install_library_middir + '/cmake/LowlevelZS',
   configuration : configuration_data({

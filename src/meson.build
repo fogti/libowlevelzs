@@ -4,11 +4,10 @@ subdir('string')
 
 llzs_base_sources = files(
   'escape.cxx',
-  'hash.c', 'hexcode.c',
+  'hexcode.c',
   'lowlevel.c',
-  'MMAPguard.cxx',
-  'Parser.cxx',
-  'random.cxx',
+  'lowlevel.cxx',
+  'Parser.cxx'
 )
 
 install_headers(
@@ -36,7 +35,6 @@ static_library('ctchk', 'hash.hpp', 'memut.hpp',
 # because we have no C functions which use callbacks
 libowlevelzs = shared_library('owlevelzs',
   llzs_base_sources,
-  llzs_io_sources,
   llzs_lexer_sources,
   llzs_string_sources,
   extra_srcs,
