@@ -46,7 +46,7 @@ cmake.configure_package_config_file(
   name        : 'LowlevelZSConfig',
   input       : 'LowlevelZSConfig.cmake.in',
   install_dir : install_library_middir + '/cmake/LowlevelZS',
-  configuration : {
+  configuration : configuration_data({
     'include_path' : '${PACKAGE_PREFIX_DIR}/' + install_include_middir,
-    'library_path' : '${PACKAGE_PREFIX_DIR}/' + install_library_middir + '/' + libowlevelzs.name,
-  })
+    'library_path' : '${PACKAGE_PREFIX_DIR}/' + install_library_middir + '/' + libowlevelzs.name(),
+  }))
